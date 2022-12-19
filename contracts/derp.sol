@@ -1,51 +1,49 @@
-// SPDX=License-Identifier: GPL-v3
+// SPDX-License-Identifier: GPL-v3
 
-pragma solidity >= 0.7.0 < 0.9;
+pragma solidity >=0.7.0 <0.9;
 
 contract Derp {
     struct Product {
         uint32 storeId;
-        uint32 productId;
+        uint32 localProductId;
+        bytes[] reviewHashes;
+        bool _initialized;
     }
 
     struct Review {
-        address owner;
-        bytes hash;
-        Product product;
+        address reviewer;
+        bool _initialized;
     }
 
-    mapping(address => uint) private reviewTokens;
-    mapping(address => uint) private profileTokens;
-    
-    Review[] private reviews;
+    address private owner;
+
+    mapping(address => uint256) private reviewTokens;
+    mapping(address => uint256) private profileTokens;
+
+    Product[] private products;
+    mapping(bytes => Review) private reviews;
 
     constructor() {
-
+        owner = msg.sender;
     }
 
     // Reviewer is msg.sender
-    function makeReview(Product calldata product, bytes calldata reviewHash) public returns(bool)  {
+    function makeReview(uint256 productId, bytes calldata reviewHash)
+        public
+        returns (bool)
+    {
         // Oracle?
-        bool bought_item = true;
-        if (!bought_item) {
+        bool boughtItem = true;
+        if (!boughtItem) {
             return false;
         }
 
-        // Review r;
-        // r.owner = msg.sender;
-        // r.product = product;
-        // reviews[reviewHash] = r;
-        
-        Review memory review = Review({
-            owner: msg.sender,
-            hash: reviewHash,
-            product: product
-        });
-        uint reviewId = reviews.push(review) - 1;
+        require(products[productId]._initialized);
 
-        // uint64 id = (uint64(product.storeId) << 32) | uint64(product.productId);
-        // Check if products exists beforehand
-        // products[id].reviews[msg.sender] = reviewHash;
+        Review memory r = Review({reviewer: msg.sender, _initialized: true});
+
+        reviews[reviewHash] = r;
+        products[productId].reviewHashes.push(reviewHash);
 
         reviewTokens[msg.sender] -= 1;
         profileTokens[msg.sender] += 1;
@@ -56,24 +54,35 @@ contract Derp {
     /*
         const hash = ipfs.upload(reviewText)
 
-        contract.makeReview.send(product, hash).then(response => {
+        contract.makeReview(product, hash).send().then(response => {
             if response {
                 post('fantasticoserver', ...);
             }
         });
     */
 
-    function reviewExists(bytes calldata reviewHash) returns(bool) {
-        return reviews[reviewHash];
+    function reviewExists(bytes calldata reviewHash)
+        public
+        view
+        returns (bool)
+    {
+        return reviews[reviewHash]._initialized;
     }
 
-    // contract.reviewExists.call(hash)
+    // contract.reviewExists(hash).call().then((response) => {
+    //    if response {
+    //    }
+    // })
 
-    function getReviewsFromProduct(Product calldata product) {
+    function getProduct(uint256 productId)
+        public
+        view
+        returns (Product calldata)
+    {
+        require(products[productId]._initialized);
 
+        return products[productId];
     }
 
-    function rateReview(Review review) public {
-
-    }
+    function rateReview(Review review) public {}
 }
