@@ -2,7 +2,9 @@
 
 pragma solidity >=0.7.0 <0.9;
 
-contract Derp {
+import "github.com/provable-things/ethereum-api/contracts/solc-v0.8.x/provableAPI.sol";
+
+contract Derp is usingProvable {
     struct Product {
         uint32 storeId;
         uint32 localProductId;
@@ -35,15 +37,30 @@ contract Derp {
         owner = msg.sender;
     }
 
-    function obtainReviewToken(uint64 productId) public {
-        require(!productsClaimed[msg.sender][productId]);
+    function obtainAllReviewToken(address account) public {
+        require(!productsClaimed[account][productId]);
+
+        // store_id
 
         // Oracle?
         bool boughtItem = true;
         require(boughtItem);
 
-        productsClaimed[msg.sender][productId] = true;
-        reviewTokens[msg.sender] += PER_PURCHASE_TOKENS;
+        // [local_product_id]
+
+        productsClaimed[account][productId] = true;
+        reviewTokens[account] += PER_PURCHASE_TOKENS;
+    }
+
+    function obtainReviewToken(address account, uint64 productId) public {
+        require(!productsClaimed[account][productId]);
+
+        // Oracle?
+        bool boughtItem = true;
+        require(boughtItem);
+
+        productsClaimed[account][productId] = true;
+        reviewTokens[account] += PER_PURCHASE_TOKENS;
     }
 
     // Reviewer is msg.sender
