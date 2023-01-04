@@ -1,0 +1,28 @@
+<h1>Show Review</h1>
+
+<ul>
+
+  <li>
+    <strong>Title:</strong>
+    <%= @review.title %>
+  </li>
+
+  <li>
+    <strong>Body:</strong>
+    <%= @review.body %>
+  </li>
+
+  <li>
+    <strong>Id:</strong>
+    <%= @review.id %>
+  </li>
+
+  <li>
+    <strong>Ipfs hash:</strong>
+    <%= @review.ipfs_hash %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.review_path(@conn, :edit, @review) %></span> |
+<span><%= link "Back", to: Routes.review_path(@conn, :index) %></span>
