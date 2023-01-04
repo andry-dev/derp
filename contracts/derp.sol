@@ -6,8 +6,6 @@ import "github.com/provable-things/ethereum-api/contracts/solc-v0.8.x/provableAP
 
 contract Derp is usingProvable {
     struct Product {
-        uint32 storeId;
-        uint32 localProductId;
         bytes[] reviewHashes;
         bool _initialized;
     }
@@ -23,9 +21,11 @@ contract Derp is usingProvable {
     mapping(address => int64) private reviewTokens;
     mapping(address => int64) private profileTokens;
 
-    Product[] private products;
+    mapping(uint64 => Product) private products;
     mapping(bytes => Review) private reviews;
     mapping(address => mapping(uint64 => bool)) private productsClaimed;
+
+    // newID = products.push({});
 
     int8 public constant REVIEW_COST = 2;
     int8 public constant REVIEW_REWARD = 1;
@@ -37,7 +37,7 @@ contract Derp is usingProvable {
         owner = msg.sender;
     }
 
-    function obtainAllReviewToken(address account) public {
+    function obtainAllReviewTokens(address account) public {
         require(!productsClaimed[account][productId]);
 
         // store_id
@@ -102,6 +102,19 @@ contract Derp is usingProvable {
         profileTokens[review.reviewer] += UPVOTE_REWARD;
     }
 
+    function refreshProducts() public {
+        // Oracle
+
+        uint32 storeId = 1;
+        uint32 localProductId = 1;
+
+        Product p = Product({_initialized: true});
+
+        uint64 productId = uint64(storeId << 32) | uint64(localProductId);
+
+        products[productId] = p;
+    }
+
     // Utility functions below
     // You should only call these functions on your local node without
     // spending gas.
@@ -114,16 +127,15 @@ contract Derp is usingProvable {
         return reviews[reviewHash]._initialized;
     }
 
-    //
-    // function getProduct(uint64 productId)
-    //     public
-    //     view
-    //     returns (Product calldata)
-    // {
-    //     require(products[productId]._initialized);
-    //
-    //     return products[productId];
-    // }
+    function getProduct(uint64 productId)
+        public
+        view
+        returns (Product calldata)
+    {
+        require(products[productId]._initialized);
+
+        return products[productId];
+    }
 
     function getReviewTokens() public view returns (int64) {
         return reviewTokens[msg.sender];
