@@ -1,0 +1,28 @@
+<h1>Listing Stores</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Id</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for store <- @stores do %>
+    <tr>
+      <td><%= store.name %></td>
+      <td><%= store.id %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.store_path(@conn, :show, store) %></span>
+        <span><%= link "Edit", to: Routes.store_path(@conn, :edit, store) %></span>
+        <span><%= link "Delete", to: Routes.store_path(@conn, :delete, store), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Store", to: Routes.store_path(@conn, :new) %></span>
