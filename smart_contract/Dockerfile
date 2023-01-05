@@ -13,11 +13,6 @@ FROM base as truffle
 RUN mkdir -p /app
 WORKDIR /app
 
-COPY package.json /app
-COPY package-lock.json /app
-
-RUN npm install --quiet
-
 COPY truffle-config.js /app
 COPY contracts /app/contracts
 COPY migrations /app/migrations/
@@ -31,4 +26,4 @@ RUN mkdir -p /home
 WORKDIR /home
 EXPOSE 8545
 
-ENTRYPOINT ["ganache", "--host 0.0.0.0"]
+ENTRYPOINT ["ganache-cli", "--host", "0.0.0.0"]
