@@ -2,9 +2,9 @@ defmodule DerpWeb.Router do
   use DerpWeb, :router
 
   import DerpWeb.UserAuth
-  import DerpWeb.ReviewController
-  import DerpWeb.StoreController
-  import DerpWeb.ProductController
+  alias StoreController
+  alias ReviewController
+  alias ProductController
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -81,6 +81,9 @@ defmodule DerpWeb.Router do
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+    resources "/reviews", ReviewController, except: [:index]
+    resources "/stores", StoreController,  except: [:index]
+    resources "/products", ProductController, except: [:index]
   end
 
   scope "/", DerpWeb do
@@ -92,7 +95,9 @@ defmodule DerpWeb.Router do
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
     resources "/reviews", ReviewController, only: [:index]
-    resources "/stores", StoreController, only: [:index]
+    resources "/stores", StoreController,  only: [:index]
     resources "/products", ProductController, only: [:index]
   end
 end
+
+
