@@ -1,0 +1,3 @@
+[submodule "smart_contract/dependencies/provable"]
+	path = smart_contract/dependencies/provable
+	url = https://github.com/provable-things/ethereum-api
