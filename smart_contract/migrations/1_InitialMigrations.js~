@@ -1,0 +1,5 @@
+const Derp = artifacts.require("derp");
+
+module.exports = function (deployer) {
+  deployer.deploy(Derp);
+};
