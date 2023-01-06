@@ -1,0 +1,25 @@
+---
+version: "3.4"
+services:
+  truffle:
+    build:
+      context: .
+      target: truffle
+    depends_on:
+      - ganache
+    networks:
+      - backend
+    volumes:
+      - .:/app:Z
+      - /app/node_modules
+  ganache:
+    build:
+      context: .
+      target: ganache
+    ports:
+      - 8545:8545
+    networks:
+      - backend
+networks:
+  backend:
+    driver: "bridge"
