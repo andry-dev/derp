@@ -2,7 +2,7 @@
 
 pragma solidity >=0.7.0 <0.9;
 
-import "github.com/provable-things/ethereum-api/contracts/solc-v0.8.x/provableAPI.sol";
+import "../provable/provableAPI.sol";
 
 contract Derp is usingProvable {
     struct Product {
@@ -37,6 +37,7 @@ contract Derp is usingProvable {
         owner = msg.sender;
     }
 
+    /*
     function obtainAllReviewTokens(address account) public {
         require(!productsClaimed[account][productId]);
 
@@ -51,6 +52,7 @@ contract Derp is usingProvable {
         productsClaimed[account][productId] = true;
         reviewTokens[account] += PER_PURCHASE_TOKENS;
     }
+    */
 
     function obtainReviewToken(address account, uint64 productId) public {
         require(!productsClaimed[account][productId]);
@@ -108,7 +110,7 @@ contract Derp is usingProvable {
         uint32 storeId = 1;
         uint32 localProductId = 1;
 
-        Product p = Product({_initialized: true});
+        Product memory p = Product({_initialized: true, reviewHashes: new bytes[](0)});
 
         uint64 productId = uint64(storeId << 32) | uint64(localProductId);
 
@@ -130,7 +132,7 @@ contract Derp is usingProvable {
     function getProduct(uint64 productId)
         public
         view
-        returns (Product calldata)
+        returns (Product memory)
     {
         require(products[productId]._initialized);
 
