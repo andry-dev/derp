@@ -37,3 +37,18 @@ derp/npm-debug.log
 derp/assets/node_modules/
 
 smart_contract/build
+
+# LaTeX files
+*.fls
+*.blg
+*.log
+*.bcf
+*.bbl
+*.aux
+*.synctex*
+*.log
+*.run.xml
+*.pdf
+*.out
+*.fdb*
+*.toc
