@@ -18,7 +18,7 @@ COPY contracts /app/contracts
 COPY migrations /app/migrations/
 COPY test /app/test/
 
-CMD ["truffle", "version"]
+CMD ["truffle", "develop"]
 
 FROM base as ganache
 

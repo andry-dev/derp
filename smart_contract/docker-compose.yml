@@ -5,21 +5,17 @@ services:
     build:
       context: .
       target: truffle
-    depends_on:
-      - ganache
-    networks:
-      - backend
+    ports:
+      - 9545:9545
+      - 24012:24012
     volumes:
       - .:/app:Z
-      - /app/node_modules
-  ganache:
-    build:
-      context: .
-      target: ganache
-    ports:
-      - 8545:8545
-    networks:
-      - backend
-networks:
-  backend:
-    driver: "bridge"
+      - /app/node_modules:Z
+  # ganache:
+  #   build:
+  #     context: .
+  #     target: ganache
+  #   ports:
+  #     - 8545:8545
+  #   networks:
+  #     - backend

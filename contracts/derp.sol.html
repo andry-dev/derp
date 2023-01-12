@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>~/prj/DERP/contracts/derp.sol.html</title>
+<meta name="Generator" content="Vim/8.0">
+<meta name="plugin-version" content="vim8.1_v2">
+<meta name="syntax" content="none">
+<meta name="settings" content="use_css,pre_wrap,no_foldcolumn,expand_tabs,prevent_copy=,use_input_for_pc=fallback">
+<meta name="colorscheme" content="catppuccin">
+<style>
+<!--
+pre { white-space: pre-wrap; font-family: monospace; color: #cdd6f4; background-color: #1e1e2e; }
+body { font-family: monospace; color: #cdd6f4; background-color: #1e1e2e; }
+* { font-size: 1em; }
+-->
+</style>
+</head>
+<body>
+<pre id='vimCodeElement'>
+// SPDX-License-Identifier: GPL-v3
+
+pragma solidity &gt;=0.7.0 &lt;0.9;
+
+contract Derp {
+    struct Product {
+        uint32 storeId;
+        uint32 localProductId;
+        bytes[] reviewHashes;
+        bool _initialized;
+    }
+
+    struct Review {
+        address reviewer;
+        int64 upvotes;
+        bool _initialized;
+    }
+
+    address private owner;
+
+    mapping(address =&gt; int64) private reviewTokens;
+    mapping(address =&gt; int64) private profileTokens;
+
+    Product[] private products;
+    mapping(bytes =&gt; Review) private reviews;
+    mapping(address =&gt; mapping(uint64 =&gt; bool)) private productsClaimed;
+
+    int8 public constant REVIEW_COST = 2;
+    int8 public constant REVIEW_REWARD = 1;
+    int8 public constant UPVOTE_COST = 2;
+    int8 public constant UPVOTE_REWARD = 1;
+    int8 public constant PER_PURCHASE_TOKENS = 10;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function obtainReviewToken(uint64 productId) public {
+        require(!productsClaimed[msg.sender][productId]);
+
+        // Oracle?
+        bool boughtItem = true;
+        require(boughtItem);
+
+        productsClaimed[msg.sender][productId] = true;
+        reviewTokens[msg.sender] += PER_PURCHASE_TOKENS;
+    }
+
+    // Reviewer is msg.sender
+    function makeReview(uint64 productId, bytes calldata reviewHash)
+        public
+        returns (bool)
+    {
+        require(reviewTokens[msg.sender] &gt;= REVIEW_COST);
+        require(!reviews[reviewHash]._initialized);
+        require(productsClaimed[msg.sender][productId]);
+
+        // Avoids creating a review for a product that doesn't exist.
+        require(products[productId]._initialized);
+
+        Review memory r = Review({
+            reviewer: msg.sender,
+            upvotes: 1,
+            _initialized: true
+        });
+
+        reviews[reviewHash] = r;
+        products[productId].reviewHashes.push(reviewHash);
+
+        reviewTokens[msg.sender] -= REVIEW_COST;
+        profileTokens[msg.sender] += REVIEW_REWARD;
+
+        return true;
+    }
+
+    function upvoteReview(bytes calldata reviewHash) public {
+        Review storage review = reviews[reviewHash];
+        require(review._initialized);
+        require(reviewTokens[msg.sender] &gt;= UPVOTE_COST);
+
+        reviewTokens[msg.sender] -= UPVOTE_COST;
+
+        review.upvotes += 1;
+
+        profileTokens[review.reviewer] += UPVOTE_REWARD;
+    }
+
+    // Utility functions below
+    // You should only call these functions on your local node without
+    // spending gas.
+
+    function reviewExists(bytes calldata reviewHash)
+        public
+        view
+        returns (bool)
+    {
+        return reviews[reviewHash]._initialized;
+    }
+
+    //
+    // function getProduct(uint64 productId)
+    //     public
+    //     view
+    //     returns (Product calldata)
+    // {
+    //     require(products[productId]._initialized);
+    //
+    //     return products[productId];
+    // }
+
+    function getReviewTokens() public view returns (int64) {
+        return reviewTokens[msg.sender];
+    }
+
+    function getProfileTokens() public view returns (int64) {
+        return profileTokens[msg.sender];
+    }
+}
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->
