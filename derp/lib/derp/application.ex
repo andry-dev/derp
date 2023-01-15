@@ -4,6 +4,9 @@ defmodule Derp.Application do
   @moduledoc false
 
   use Application
+  use Web3, rpc_endpoint: "localhost:9545"
+
+  # contract :Derp, contract_address: "", abi_path: ""
 
   @impl true
   def start(_type, _args) do

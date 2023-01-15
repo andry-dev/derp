@@ -1,12 +1,14 @@
-<h1>Listing Reviews</h1>
+<h1>Your reviews  <span><%= link "New Review", to: Routes.review_path(@conn, :new) %></span></h1>
 
 <table>
   <thead>
     <tr>
+      <th>Product photo</th>
       <th>Title</th>
       <th>Body</th>
-      <th>Id</th>
-      <th>Ipfs hash</th>
+      <th>Upvotes</th>
+      <th>Downvotes</th>
+      <!-- <th>Ipfs hash</th> -->
 
       <th></th>
     </tr>
@@ -29,4 +31,3 @@
   </tbody>
 </table>
 
-<span><%= link "New Review", to: Routes.review_path(@conn, :new) %></span>

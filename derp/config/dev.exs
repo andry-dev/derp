@@ -53,6 +53,13 @@ config :derp, DerpWeb.Endpoint,
 # configured to run both http and https servers on
 # different ports.
 
+config :dart_sass,
+  version: "1.57.1",
+  default: [
+    args: ~w(css/app.scss ../priv/static/assets/app.css),
+    cd: Path.expand("../assets", __DIR__)
+  ]
+
 # Watch static and templates for browser reloading.
 config :derp, DerpWeb.Endpoint,
   live_reload: [
@@ -61,7 +68,14 @@ config :derp, DerpWeb.Endpoint,
       ~r"priv/gettext/.*(po)$",
       ~r"lib/derp_web/(live|views)/.*(ex)$",
       ~r"lib/derp_web/templates/.*(eex)$"
-    ]
+    ],
+  ],
+  watchers: [
+    sass: {
+      DartSass,
+      :install_and_run,
+      [:default, ~w(--embed-source-map --source-map-urls=absolute --watch)]
+    }
   ]
 
 # Do not include metadata nor timestamps in development logs

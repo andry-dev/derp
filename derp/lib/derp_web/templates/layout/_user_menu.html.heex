@@ -1,10 +1,12 @@
-<ul>
+<ul class="navbar-nav mx-auto justify-content-end">
+  <li class="nav-item"><%= link "Your Reviews", class: "nav-link", to: Routes.review_path(@conn, :index) %></li>
 <%= if @current_user do %>
-  <li><%= @current_user.email %></li>
-  <li><%= link "Settings", to: Routes.user_settings_path(@conn, :edit) %></li>
-  <li><%= link "Log out", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
+  <li class="nav-item navbar-text mr-auto"><%= @current_user.email %></li>
+  <li class="nav-item"><%= link "Settings", class: "nav-link", to: Routes.user_settings_path(@conn, :edit) %></li>
+  <li class="nav-item"><%= link "Log out", class: "nav-link", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
 <% else %>
-  <li><%= link "Register", to: Routes.user_registration_path(@conn, :new) %></li>
-  <li><%= link "Log in", to: Routes.user_session_path(@conn, :new) %></li>
+  <li class="nav-item"><%= link "Register", class: "nav-link", to: Routes.user_registration_path(@conn, :new) %></li>
+  <li class="nav-item"><%= link "Log in", class: "nav-link", to: Routes.user_session_path(@conn, :new) %></li>
 <% end %>
+  <li class="nav-item"><button class="btn btn-primary" onclick="ethEnabled()">Connect wallet</button></li>
 </ul>
