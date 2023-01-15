@@ -11,21 +11,36 @@
   </head>
   <body>
     <header>
-      <section class="container">
-        <nav>
-          <ul>
-            <li><a href="https://hexdocs.pm/phoenix/overview.html">Get Started</a></li>
-            <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
-              <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
-            <% end %>
-          </ul>
-          <%= render "_user_menu.html", assigns %>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+          <%= link "Derp", class: "navbar-brand", to: Routes.page_path(DerpWeb.Endpoint, :index) %>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <%= render "_user_menu.html", assigns %>
+            </div>
         </nav>
-        <a href="https://phoenixframework.org/" class="phx-logo">
-          <img src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/>
-        </a>
-      </section>
+        <!-- <a href="https://phoenixframework.org/" class="phx-logo"> -->
+        <!--   <img src={Routes.static_path(@conn, "/images/phoenix.png")} alt="Phoenix Framework Logo"/> -->
+        <!-- </a> -->
     </header>
     <%= @inner_content %>
   </body>
+
+<script>
+const ethEnabled = async () => {
+  if (window.ethereum) {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    window.web3 = new Web3(window.ethereum);
+    window.contract = new window.web3.eth.Contract(contractAbi.abi);
+    window.contract.options.from = window.ethereum.selectedAddress;
+    window.contract.options.address =
+      "0xC5cdF549C307E75dB9edaD1722A4b2847d6a9c21";
+
+    return true;
+  }
+  return false;
+};
+</script>
+
 </html>
