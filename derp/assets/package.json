@@ -4,6 +4,7 @@
     "alpinejs": "^3.10.5",
     "bootstrap": "^5.2.3",
     "font-awesome": "^4.7.0",
+    "ipfs-http-client": "^60.0.0",
     "web3": "^1.8.1"
   }
 }

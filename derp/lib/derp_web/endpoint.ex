@@ -12,6 +12,13 @@ defmodule DerpWeb.Endpoint do
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
+  # plug Corsica,
+  #   max_age: 600,
+  #   origins: "*",
+  #   allow_methods: :all,
+  #   allow_headers: :all,
+  #   log: [rejected: :debug, invalid: :debug, accepted: :debug]
+  #
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
@@ -46,5 +53,8 @@ defmodule DerpWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  # plug CORSPlug, origin: ["http://127.0.0.1:5001/api/v0"]
+
   plug DerpWeb.Router
 end
