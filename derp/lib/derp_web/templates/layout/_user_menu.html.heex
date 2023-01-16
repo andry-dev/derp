@@ -1,5 +1,7 @@
-<ul class="navbar-nav mx-auto justify-content-end">
+<ul class="navbar-nav me-auto mb-2 mb-lg-0">
   <li class="nav-item"><%= link "Your Reviews", class: "nav-link", to: Routes.review_path(@conn, :index) %></li>
+</ul>
+<ul class="navbar-nav">
 <%= if @current_user do %>
   <li class="nav-item navbar-text mr-auto"><%= @current_user.email %></li>
   <li class="nav-item"><%= link "Settings", class: "nav-link", to: Routes.user_settings_path(@conn, :edit) %></li>

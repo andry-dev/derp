@@ -51,7 +51,9 @@ defmodule Derp.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:web3, "~> 0.1.6"},
-      {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev}
+      {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev},
+      # {:corsica, "~> 1.3"}
+      # {:cors_plug, "~> 3.0"}
     ]
   end
 

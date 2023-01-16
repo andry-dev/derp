@@ -26,6 +26,7 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+
 // import "alpinejs";
 //
 // window.Alpine = Alpine;
@@ -34,6 +35,11 @@ import topbar from "../vendor/topbar";
 import contractAbi from "./Derp-abi.json";
 
 import Web3 from "web3";
+
+import { create } from "ipfs-http-client";
+
+// connect to the default API address http://localhost:5001
+window.ipfs = create({ url: "http://127.0.0.1:5001/api/v0" });
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute(
   "content",
