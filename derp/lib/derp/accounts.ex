@@ -96,6 +96,45 @@ defmodule Derp.Accounts do
   ## Settings
 
   @doc """
+  Emulates that username will change without actually changing it.
+
+  ## Examples
+
+      iex> apply_user_username(user, "password", %{username: "new_username"})
+      {:ok, %User{}}
+
+      iex> apply_user_username(user, "invalid_password", %{username: "new_username"})
+      {:error, :invalid_password}
+  """
+
+  def apply_user_username(user, password, attrs) do
+    case User.valid_password?(user, password) do
+      true ->
+        user
+        |> User.username_changeset(attrs)
+        |> Repo.update()
+
+      false ->
+        {:error, :invalid_password}
+    end
+  end
+
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for changing the username.
+
+  ## Examples
+
+      iex> change_user_username(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
+
+  def change_user_username(user, attrs \\ %{}) do
+    User.username_changeset(user, attrs)
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
 
   ## Examples

@@ -1,6 +1,3 @@
-#!/usr/bin/sh
-
-
 docker_cmd=docker
 
 if command -v podman; then
