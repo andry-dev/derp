@@ -1,31 +1,40 @@
-<h1>Log in</h1>
+<div class="container-fluid">
+  <h1>Log in</h1>
 
-<.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
-  <%= if @error_message do %>
-    <div class="alert alert-danger">
-      <p><%= @error_message %></p>
+  <div class="row">
+
+    <div class="col col-sm-6">
+      <.form let={f} for={@conn} action={Routes.user_session_path(@conn, :create)} as={:user}>
+        <%= if @error_message do %>
+          <div class="alert alert-danger">
+            <p><%= @error_message %></p>
+          </div>
+        <% end %>
+
+        <div class="form-group mx-auto">
+          <%= label f, :email, class: "mb-2"  %>
+          <%= email_input f, :email, class: "form-control", required: true %>
+        </div>
+
+        <div class="form-group mx-auto">
+          <%= label f, :password, class: "mb-2"  %>
+          <%= password_input f, :password, class: "form-control", required: true %>
+        </div>
+
+        <div class="form-check mt-2">
+          <%= label f, :remember_me, "Keep me logged in for 60 days", class: "form-check-label" %>
+          <%= checkbox f, :remember_me, class: "form-check-input" %>
+        </div>
+
+          <%= submit "Log in", class: "btn btn-primary mt-4" %>
+      </.form>
+
+       <p class="mt-4">
+        <%= link "Register", to: Routes.user_registration_path(@conn, :new) %> |
+        <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new) %>
+      </p>
     </div>
-  <% end %>
 
-  <div class="form-group mx-auto">
-    <%= label f, :email %>
-    <%= email_input f, :email, class: "form-control", required: true %>
   </div>
 
-  <div class="form-group mx-auto">
-    <%= label f, :password %>
-    <%= password_input f, :password, class: "form-control", required: true %>
-  </div>
-
-  <div class="form-check mx-auto">
-    <%= label f, :remember_me, "Keep me logged in for 60 days", class: "form-check-label" %>
-    <%= checkbox f, :remember_me, class: "form-check-input" %>
-  </div>
-
-    <%= submit "Log in", class: "btn btn-primary mt-2" %>
-</.form>
-
-<p class="mt-2">
-  <%= link "Register", to: Routes.user_registration_path(@conn, :new) %> |
-  <%= link "Forgot your password?", to: Routes.user_reset_password_path(@conn, :new) %>
-</p>
+</div>

@@ -34,6 +34,22 @@ defmodule DerpWeb.UserSettingsController do
     end
   end
 
+  def update(conn, %{"action" => "update username"} = params) do
+    %{"current password" => password, "user" => user_params} = params
+    user = conn.assigns.current_user
+
+    case Accounts.apply_user_username(user, password, user_params) do
+      {:ok, applied_user} ->
+        conn
+        |> put_flash(:info, "Username updated successfully.")
+        |> put_session(:user_return_to, Routes.user_settings_path(conn, :edit))
+        |> UserAuth.log_in_user(applied_user)
+
+      {:error, changeset} ->
+        render(conn, "edit.html", username_changeset: changeset)
+    end
+  end
+
   def update(conn, %{"action" => "update_password"} = params) do
     %{"current_password" => password, "user" => user_params} = params
     user = conn.assigns.current_user
