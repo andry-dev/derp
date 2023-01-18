@@ -27,14 +27,11 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
-// import "alpinejs";
-//
-// window.Alpine = Alpine;
-// Alpine.start();
+import Alpine from "alpinejs";
+window.Alpine = Alpine;
+Alpine.start();
 
 import contractAbi from "./Derp-abi.json";
-
-import Web3 from "web3";
 
 import { create } from "ipfs-http-client";
 
@@ -61,3 +58,28 @@ liveSocket.connect();
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket;
+
+import Web3 from "web3";
+
+const ethEnabled = async () => {
+  if (window.ethereum) {
+    await window.ethereum.request({ method: "eth_requestAccounts" });
+    window.web3 = new Web3(window.ethereum);
+    window.contract = new window.web3.eth.Contract(contractAbi.abi);
+    window.contract.options.from = window.ethereum.selectedAddress;
+    window.contract.options.address =
+      "0xb23fDb08B5157eDab5d57f64909134Cb4DB93233";
+
+    return true;
+  }
+  return false;
+};
+
+window.ethEnabled = ethEnabled;
+
+Alpine.store("review_data", {
+  reviews: [],
+
+  update() {
+  },
+});

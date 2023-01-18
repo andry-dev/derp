@@ -30,21 +30,4 @@
       <%= @inner_content %>
     </div>
   </body>
-
-<script>
-const ethEnabled = async () => {
-  if (window.ethereum) {
-    await window.ethereum.request({ method: "eth_requestAccounts" });
-    window.web3 = new Web3(window.ethereum);
-    window.contract = new window.web3.eth.Contract(contractAbi.abi);
-    window.contract.options.from = window.ethereum.selectedAddress;
-    window.contract.options.address =
-      "0xC5cdF549C307E75dB9edaD1722A4b2847d6a9c21";
-
-    return true;
-  }
-  return false;
-};
-</script>
-
 </html>
