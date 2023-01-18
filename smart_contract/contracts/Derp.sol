@@ -23,6 +23,7 @@ contract Derp is usingProvable {
 
     mapping(uint64 => Product) private products;
     mapping(bytes => Review) private reviews;
+    mapping(address => bytes[]) private reviewsFromAddress;
     mapping(address => mapping(uint64 => bool)) private productsClaimed;
 
     // newID = products.push({});
@@ -86,6 +87,8 @@ contract Derp is usingProvable {
             _initialized: true
         });
 
+        reviewsFromAddress[msg.sender].push(reviewHash);
+
         reviews[reviewHash] = r;
         products[productId].reviewHashes.push(reviewHash);
 
@@ -147,5 +150,9 @@ contract Derp is usingProvable {
 
     function getProfileTokens() public view returns (int64) {
         return profileTokens[msg.sender];
+    }
+
+    function getReviews() public view returns (bytes[] memory) {
+        return reviewsFromAddress[msg.sender];
     }
 }
