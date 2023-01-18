@@ -1,5 +1,76 @@
-<h1>New Review</h1>
+<div class="container-fluid">
 
-<%= render "form.html", Map.put(assigns, :action, Routes.review_path(@conn, :create)) %>
+    <div class="row">
+        <div class="col col-sm-6">
+            <h1>New Review</h1>
+        </div>
+    </div>
 
-<span><%= link "Back", to: Routes.review_path(@conn, :index) %></span>
+    <div class="row mb-4">
+        <!--
+        <%= render "form.html", Map.put(assigns,
+        :action, Routes.review_path(@conn, :create)) %>
+        -->
+        <div class="col col-sm-6">
+
+            <form class="form" x-data="reviewForm()" @submit.prevent="submitForm">
+
+                <!--hardcoded for now-->
+                <input type="hidden" value="1" x-model="formData.productNumber"/>
+
+                <label for="reviewTitle"> Review Title </label>
+                <div class="input-group mb-3 mt-2">
+                    <input type="text" class="form-control" placeholder="Review Title" id="reviewTitle" x-model="formData.reviewTitle"/>
+                </div>
+
+                <label> Review Text </label>
+                <div class="input-group mt-2">
+                    <textarea class="form-control" x-model="formData.reviewBody"></textarea>
+                </div>
+
+                <button class="btn btn-primary mt-4">
+                    Submit
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+
+    <div class="row">
+        <div class="col col-sm-6">
+            <span><%= link "Back", to: Routes.review_path(@conn, :index), class: "btn btn-primary" %></span>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function reviewForm() {
+        return {
+            formData: {
+                productNumber: 1,
+                reviewTitle: "",
+                reviewBody: ""
+            },
+            async submitForm() {
+                const response = await ipfs.add(this.formData.reviewBody);
+                const reviewHash = response.path;
+
+                console.log(reviewHash, typeof(reviewHash));
+                productId = this.formData.productNumber;
+
+                if (!window.contract) {
+                    await ethEnabled();
+                }
+
+                const bytes32ReviewHash = web3.utils.fromAscii(reviewHash);
+                await window.contract.methods.makeReview(productId, bytes32ReviewHash).send();
+
+                const result = await contract.methods.reviewExists(bytes32ReviewHash).call();
+                console.log(result)
+
+            }
+        }
+    }
+</script>

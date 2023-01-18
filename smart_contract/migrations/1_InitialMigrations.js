@@ -13,8 +13,11 @@ module.exports = async function (deployer) {
   const accounts = await web3.eth.getAccounts();
   //console.log(accounts)
   const reviewer = accounts[1];
+  console.log(`Reviewer account is ${reviewer}`);
   const upvoter = accounts[3];
+  console.log(`Upvoter account is ${upvoter}`);``
   const server = accounts[2];
+  console.log(`Server account is ${server}`);
 
   await contract.methods.refreshProducts().send({from: server});
 
