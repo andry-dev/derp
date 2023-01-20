@@ -1,30 +1,46 @@
-<h1>Listing Products</h1>
+<div class="container-fluid" x-data="productData">
+  <div class="row mt-4">
 
-<table>
-  <thead>
-    <tr>
-      <th>Name</th>
-      <th>Id</th>
-      <th>Local</th>
+    <div class="col col-xl-8">
+      <p class="h1">Your products</p>
+    </div>
 
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-<%= for product <- @products do %>
-    <tr>
-      <td><%= product.name %></td>
-      <td><%= product.id %></td>
-      <td><%= product.local_id %></td>
+    <div class="col col-auto">
+      <button class="btn btn-primary" id="refreshProduct" @click="refresh()">Refresh products</button>
+    </div>
 
-      <td>
-        <span><%= link "Show", to: Routes.product_path(@conn, :show, product) %></span>
-        <span><%= link "Edit", to: Routes.product_path(@conn, :edit, product) %></span>
-        <span><%= link "Delete", to: Routes.product_path(@conn, :delete, product), method: :delete, data: [confirm: "Are you sure?"] %></span>
-      </td>
-    </tr>
-<% end %>
-  </tbody>
-</table>
+    <div class="col col-auto">
+      <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div>
+    </div>
+  </div>
 
-<span><%= link "New Product", to: Routes.product_path(@conn, :new) %></span>
+  <div class="row">
+    <div class="col col-md-12">
+      <table class="table table-hover mt-3">
+        <thead>
+          <tr>
+            <th>Product photo</th>
+            <th>Product name</th>
+            <th>Purchase date</th>
+            <th>Product store</th>
+            <th>Link to product (?)</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        <!--
+        <template x-for="review in reviews">
+          <tr>
+            <td x-text="review.product_id"></td>
+            <td x-text="review.title"></td>
+            <td x-text="review.body"></td>
+            <td x-text="review.upvotes"></td>
+            <td x-text="review.downvotes"></td>
+          </tr>
+        </template>
+        -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

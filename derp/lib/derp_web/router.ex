@@ -99,5 +99,3 @@ defmodule DerpWeb.Router do
     resources "/products", ProductController, only: [:index]
   end
 end
-
-
