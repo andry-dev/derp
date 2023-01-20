@@ -57,7 +57,6 @@ liveSocket.connect();
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket;
 
 import Web3 from "web3";
 
@@ -68,7 +67,7 @@ const ethEnabled = async () => {
     window.contract = new window.web3.eth.Contract(contractAbi.abi);
     window.contract.options.from = window.ethereum.selectedAddress;
     window.contract.options.address =
-      "0x2451dC954E558b41b2632Bb40cf9977550235965";
+      "0xc70086bf2ab3314b98f524512C6D0333f85f7205";
 
     return true;
   }
@@ -77,9 +76,3 @@ const ethEnabled = async () => {
 
 window.ethEnabled = ethEnabled;
 
-Alpine.store("review_data", {
-  reviews: [],
-
-  update() {
-  },
-});
