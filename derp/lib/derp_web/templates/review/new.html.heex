@@ -66,6 +66,8 @@
                 const result = await contract.methods.reviewExists(bytes32ReviewHash).call();
                 //console.log(result)
 
+                window.location.href = "/reviews";
+
             }
         }
     }
