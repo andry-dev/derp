@@ -17,15 +17,20 @@ module.exports = async function (deployer) {
   const upvoter = accounts[3];
   console.log(`Upvoter account is ${upvoter}`);
 
-  await contract.methods.addProducts([
+  const products = [
     (0n << 32n) | 1n,
     (1n << 32n) | 1n,
-  ]).send({ from: server });
+  ];
 
-  const productId = (1n << 32n) | 1n;
+  await contract.methods.addProducts(products).send({
+    from: server,
+    gas: 1000000,
+  });
+
+  console.log(`Added products: ${products}`);
 
   // JS needs BigInt for 64-bit integers
-  await contract.methods.rewardReviewToken(reviewer, productId).send({
+  await contract.methods.rewardReviewToken(reviewer, products[0]).send({
     from: server,
   });
 
@@ -34,32 +39,38 @@ module.exports = async function (deployer) {
   });
   console.log(`Reviewer has ${tokens} tokens`);
 
-  const product = await contract.methods.getProduct(productId).call({
+  const product = await contract.methods.getProduct(products[0]).call({
     from: reviewer,
   });
   console.log(product);
 
-  const reviewHash = 0x1234;
-  //unless 1mln of gas is specified this fails
-  //might need to check config
-  await contract.methods.makeReview(productId, reviewHash).send({
+  const allProducts = await contract.methods.getProducts().call({
     from: reviewer,
-    gas: 1000000,
   });
 
-  //check whether review exists
-  const result = await contract.methods.reviewExists(reviewHash).call({
-    from: reviewer,
-  });
-  console.log(result);
+  console.log(allProducts);
 
-  //redeem fake tokens for upvoter
-  await contract.methods.rewardReviewToken(upvoter, productId).send({
-    from: server,
-  });
-  await contract.methods.upvoteReview(reviewHash).send({ from: upvoter });
-  const upv_token = await contract.methods.getProfileTokens().call({
-    from: reviewer,
-  });
-  console.log(`Reviewer has ${upv_token} profile tokens`);
+  // const reviewHash = 0x1234;
+  // //unless 1mln of gas is specified this fails
+  // //might need to check config
+  // await contract.methods.makeReview(products[0], reviewHash).send({
+  //   from: reviewer,
+  //   gas: 1000000,
+  // });
+  //
+  // //check whether review exists
+  // const result = await contract.methods.reviewExists(reviewHash).call({
+  //   from: reviewer,
+  // });
+  // console.log(result);
+
+  // //redeem fake tokens for upvoter
+  // await contract.methods.rewardReviewToken(upvoter, productId).send({
+  //   from: server,
+  // });
+  // await contract.methods.upvoteReview(reviewHash).send({ from: upvoter });
+  // const upv_token = await contract.methods.getProfileTokens().call({
+  //   from: reviewer,
+  // });
+  // console.log(`Reviewer has ${upv_token} profile tokens`);
 };

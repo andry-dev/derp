@@ -41,6 +41,9 @@ contract Derp {
     // Mapping from the uint64 product ID to the stored products.
     mapping(uint64 => Product) private products;
 
+    // Array used to retrieve all the products stored on-chain.
+    uint64[] private registeredProducts;
+
     // Mapping from the IPFS' Content Identifier of the review to the actual
     // review.
     mapping(bytes => Review) private reviews;
@@ -82,22 +85,9 @@ contract Derp {
         owner = msg.sender;
     }
 
-    /*
-    function obtainAllReviewTokens(address account) public {
-        require(!productsClaimed[account][productId]);
-
-        // store_id
-
-        // Oracle?
-        bool boughtItem = true;
-        require(boughtItem);
-
-        // [local_product_id]
-
-        productsClaimed[account][productId] = true;
-        reviewTokens[account] += PER_PURCHASE_TOKENS;
+    function requestAllReviewTokens(address account) external {
+        emit ReviewTokenRequested(account);
     }
-    */
 
     function requestReviewToken(address account, uint64 productId) external {
         // Check if the product was already claimed.
@@ -106,7 +96,7 @@ contract Derp {
             "Product already claimed"
         );
 
-        emit ReviewTokenRequested(msg.sender, productId);
+        emit ReviewTokenRequested(account, productId);
     }
 
     function rewardReviewToken(address account, uint64 productId)
@@ -115,6 +105,23 @@ contract Derp {
     {
         productsClaimed[account][productId] = ProductState.CLAIMED;
         reviewTokens[account] += PER_PURCHASE_TOKENS;
+
+        emit ReviewTokensGranted(account);
+    }
+
+    function rewardReviewTokens(address account, uint64[] calldata productIds)
+        external
+        onlyOwner
+    {
+        for (uint256 i = 0; i < productIds.length; ++i) {
+            if (
+                productsClaimed[account][productIds[i]] ==
+                ProductState.UNCLAIMED
+            ) {
+                productsClaimed[account][productIds[i]] = ProductState.CLAIMED;
+                reviewTokens[account] += PER_PURCHASE_TOKENS;
+            }
+        }
 
         emit ReviewTokensGranted(account);
     }
@@ -167,6 +174,20 @@ contract Derp {
         profileTokens[review.reviewer] += UPVOTE_REWARD;
     }
 
+    function addProduct(uint64 productId) external onlyOwner {
+        require(!products[productId]._initialized, "Product already exists");
+
+        Product memory p = Product({
+            _initialized: true,
+            reviewHashes: new bytes[](0)
+        });
+
+        if (!products[productId]._initialized) {
+            registeredProducts.push(productId);
+            products[productId] = p;
+        }
+    }
+
     function addProducts(uint64[] calldata productIds) external onlyOwner {
         for (uint256 i = 0; i < productIds.length; ++i) {
             Product memory p = Product({
@@ -175,6 +196,7 @@ contract Derp {
             });
 
             if (!products[productIds[i]]._initialized) {
+                registeredProducts.push(productIds[i]);
                 products[productIds[i]] = p;
             }
         }
@@ -196,6 +218,10 @@ contract Derp {
         require(products[productId]._initialized, "Product doesn't exist");
 
         return products[productId];
+    }
+
+    function getProducts() public view returns (uint64[] memory) {
+        return registeredProducts;
     }
 
     function getReviewTokens() public view returns (int64) {
