@@ -10,7 +10,7 @@
     </div>
 
     <div class="col col-auto">
-      <button class="btn btn-primary" @click="refresh()">Refresh reviews</button>
+      <button class="btn btn-primary" id="refreshReviews" @click="refresh()">Refresh reviews</button>
     </div>
   </div>
 
@@ -23,7 +23,7 @@
             <th>Title</th>
             <th>Body</th>
             <th>Upvotes</th>
-            <th>Downvotes</th>
+            <th>Downvotes <small>(not publicly shown)</small></th>
             <!-- <th>Ipfs hash</th> -->
 
             <th></th>
@@ -33,25 +33,13 @@
 
         <template x-for="review in reviews">
           <tr>
+            <td x-text="review.product_id"></td>
             <td x-text="review.title"></td>
             <td x-text="review.body"></td>
+            <td x-text="review.upvotes"></td>
+            <td x-text="review.downvotes"></td>
           </tr>
         </template>
-
-      <%= for review <- @reviews do %>
-          <tr>
-            <td><%= review.title %></td>
-            <td><%= review.body %></td>
-            <td><%= review.id %></td>
-            <td><%= review.ipfs_hash %></td>
-
-            <td>
-              <span><%= link "Show", to: Routes.review_path(@conn, :show, review) %></span>
-              <span><%= link "Edit", to: Routes.review_path(@conn, :edit, review) %></span>
-              <span><%= link "Delete", to: Routes.review_path(@conn, :delete, review), method: :delete, data: [confirm: "Are you sure?"] %></span>
-            </td>
-          </tr>
-      <% end %>
         </tbody>
       </table>
     </div>
@@ -71,22 +59,42 @@
               }
 
               const reviewHashes = await contract.methods.getReviews().call();
+              //console.log(reviewHashes)
 
               this.reviews = []
 
+              for (i = 2; i < reviewHashes.length; i++) {
 
-              for (hash in reviewHashes) {
-                const reviewBody = ipfs.
+                //console.log(reviewHashes[i])
+                const asciiAddress = web3.utils.hexToAscii(reviewHashes[i])
+                //console.log(asciiAddress)
+                const stream = await ipfs.cat(asciiAddress);
+
+                const decoder = new TextDecoder()
+                let data = ''
+
+                for await (const chunk of stream) {
+                  // chunks of data are returned as a Uint8Array, convert it back to a string
+                  data += decoder.decode(chunk, { stream: true })
+                }
+
+                const json_data = JSON.parse(data);
 
                 this.reviews.push({
-                  title: 'xya',
-                  body: 'x',
+                  product_id: json_data.productNumber,
+                  title: json_data.reviewTitle,
+                  body: json_data.reviewBody,
                   upvotes: 1,
+                  downvotes: 0,
                 });
               }
-
-              console.log(reviewHashes);
             }
         }))
     })
+</script>
+
+<script>
+  window.addEventListener('load', function(){
+    document.getElementById("refreshReviews").click();
+  });
 </script>
