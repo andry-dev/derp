@@ -7,10 +7,6 @@
     </div>
 
     <div class="row mb-4">
-        <!--
-        <%= render "form.html", Map.put(assigns,
-        :action, Routes.review_path(@conn, :create)) %>
-        -->
         <div class="col col-sm-6">
 
             <form class="form" x-data="reviewForm()" @submit.prevent="submitForm">
@@ -54,10 +50,10 @@
                 reviewBody: ""
             },
             async submitForm() {
-                const response = await ipfs.add(this.formData.reviewBody);
+                const response = await ipfs.add(JSON.stringify(this.formData));
                 const reviewHash = response.path;
 
-                console.log(reviewHash, typeof(reviewHash));
+                //console.log(reviewHash, typeof(reviewHash));
                 productId = this.formData.productNumber;
 
                 if (!window.contract) {
@@ -68,7 +64,9 @@
                 await window.contract.methods.makeReview(productId, bytes32ReviewHash).send();
 
                 const result = await contract.methods.reviewExists(bytes32ReviewHash).call();
-                console.log(result)
+                //console.log(result)
+
+                window.location.href = "/reviews";
 
             }
         }
