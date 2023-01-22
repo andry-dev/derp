@@ -5,44 +5,53 @@
       <p class="h1">Your reviews</p>
     </div>
 
-    <div class="col col-auto">
-      <%= link "New Review", to: Routes.review_path(@conn, :new), class: "btn btn-primary" %>
-    </div>
+    <%= if @current_user do %>
+      <div class="col col-auto">
+        <%= link "New Review", to: Routes.review_path(@conn, :new), class: "btn btn-primary" %>
+      </div>
 
-    <div class="col col-auto">
-      <button class="btn btn-primary" id="refreshReviews" @click="refresh()">Refresh reviews</button>
-    </div>
+      <div class="col col-auto">
+        <button class="btn btn-primary" id="refreshReviews" @click="refresh()">Refresh reviews</button>
+      </div>
+    <%end%>
   </div>
 
+
   <div class="row">
-    <div class="col col-md-12">
-      <table class="table table-hover mt-3">
-        <thead>
-          <tr>
-            <th>Product photo</th>
-            <th>Title</th>
-            <th>Body</th>
-            <th>Upvotes</th>
-            <th>Downvotes <small>(not publicly shown)</small></th>
-            <!-- <th>Ipfs hash</th> -->
+    <%= if @current_user do %>
+      <div class="col col-md-12">
+        <table class="table table-hover mt-3">
+          <thead>
+            <tr>
+              <th>Product photo</th>
+              <th>Title</th>
+              <th>Body</th>
+              <th>Upvotes</th>
+              <th>Downvotes <small>(not publicly shown)</small></th>
+              <!-- <th>Ipfs hash</th> -->
 
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
 
-        <template x-for="review in reviews">
-          <tr>
-            <td x-text="review.product_id"></td>
-            <td x-text="review.title"></td>
-            <td x-text="review.body"></td>
-            <td x-text="review.upvotes"></td>
-            <td x-text="review.downvotes"></td>
-          </tr>
-        </template>
-        </tbody>
-      </table>
-    </div>
+          <template x-for="review in reviews">
+            <tr>
+              <td x-text="review.product_id"></td>
+              <td x-text="review.title"></td>
+              <td x-text="review.body"></td>
+              <td x-text="review.upvotes"></td>
+              <td x-text="review.downvotes"></td>
+            </tr>
+          </template>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="col col-md-12">
+        <p class="h3">You need to be logged in to see your reviews</p>
+      </div>
+    <% end %>
   </div>
 
 </div>
