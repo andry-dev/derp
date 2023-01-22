@@ -5,42 +5,50 @@
       <p class="h1">Your products</p>
     </div>
 
-    <div class="col col-auto">
-      <button class="btn btn-primary" id="refreshProduct" @click="refresh()">Refresh products</button>
-    </div>
+    <%= if @current_user do %>
+      <div class="col col-auto">
+        <button class="btn btn-primary" id="refreshProduct" @click="refresh()">Refresh products</button>
+      </div>
 
-    <div class="col col-auto">
-      <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div>
-    </div>
+      <div class="col col-auto">
+        <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div>
+      </div>
+    <% end %>
   </div>
 
   <div class="row">
-    <div class="col col-md-12">
-      <table class="table table-hover mt-3">
-        <thead>
-          <tr>
-            <th>Product photo</th>
-            <th>Product name</th>
-            <th>Purchase date</th>
-            <th>Product store</th>
-            <th>Link to product (?)</th>
-          </tr>
-        </thead>
-        <tbody>
+    <%= if @current_user do %>
+      <div class="col col-md-12">
+        <table class="table table-hover mt-3">
+          <thead>
+            <tr>
+              <th>Product photo</th>
+              <th>Product name</th>
+              <th>Purchase date</th>
+              <th>Product store</th>
+              <th>Link to product (?)</th>
+            </tr>
+          </thead>
+          <tbody>
 
-        <!--
-        <template x-for="review in reviews">
-          <tr>
-            <td x-text="review.product_id"></td>
-            <td x-text="review.title"></td>
-            <td x-text="review.body"></td>
-            <td x-text="review.upvotes"></td>
-            <td x-text="review.downvotes"></td>
-          </tr>
-        </template>
-        -->
-        </tbody>
-      </table>
-    </div>
+          <!--
+          <template x-for="review in reviews">
+            <tr>
+              <td x-text="review.product_id"></td>
+              <td x-text="review.title"></td>
+              <td x-text="review.body"></td>
+              <td x-text="review.upvotes"></td>
+              <td x-text="review.downvotes"></td>
+            </tr>
+          </template>
+          -->
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="col col-md-12">
+        <p class="h3">You are not logged in. Please log in to see your products.</p>
+      </div>
+    <% end %>
   </div>
 </div>
