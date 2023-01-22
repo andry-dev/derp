@@ -2,37 +2,81 @@
 
 pragma solidity >=0.7.0 <0.9;
 
-import "../dependencies/provable/provableAPI.sol";
+contract Derp {
+    enum ProductState {
+        UNCLAIMED,
+        CLAIMED,
+        REVIEWED
+    }
 
-contract Derp is usingProvable {
+    // The product for which an user wants to make a review.
+    // This is indexed as a combination of the store ID and the product ID
+    // local to that store.
+    //
+    // Example:
+    //    store ID = 1,
+    //    local product ID = 1,
+    //    product ID = 0x100000001
     struct Product {
         bytes[] reviewHashes;
         bool _initialized;
     }
 
+    // A review made by a reviewer.
+    // The text of the review is stored on IPFS.
     struct Review {
         address reviewer;
         int64 upvotes;
         bool _initialized;
     }
 
+    // The deployer of the contract.
+    // Used to check the authenticity of the reviews.
     address private owner;
 
+    // Mapping for the NFTs used on the website.
     mapping(address => int64) private reviewTokens;
     mapping(address => int64) private profileTokens;
 
+    // Mapping from the uint64 product ID to the stored products.
     mapping(uint64 => Product) private products;
-    mapping(bytes => Review) private reviews;
-    mapping(address => bytes[]) private reviewsFromAddress;
-    mapping(address => mapping(uint64 => bool)) private productsClaimed;
 
-    // newID = products.push({});
+    // Mapping from the IPFS' Content Identifier of the review to the actual
+    // review.
+    mapping(bytes => Review) private reviews;
+
+    // Mapping used for retrieving the IPFS' CIDs of the reviews made by an
+    // address.
+    mapping(address => bytes[]) private reviewsFromAddress;
+
+    // Mapping of the products actually claimed by an user.
+    // Used to store on-chain the validity of the reviews.
+    mapping(address => mapping(uint64 => ProductState)) private productsClaimed;
+
+    // Events emitted when an user wants to know if some review tokens can be
+    // obtained.
+    //
+    // ReviewTokensGranted is emitted when the response is affirmative.
+    event ReviewTokenRequested(address account);
+    event ReviewTokenRequested(address account, uint64 product);
+    event ReviewTokensGranted(address account);
+
+    // Event emitted when an user wants to refresh the products for which they
+    // can create a review.
+    event ProductRefreshRequested();
+
+    // Constants used by the contract
 
     int8 public constant REVIEW_COST = 2;
     int8 public constant REVIEW_REWARD = 1;
     int8 public constant UPVOTE_COST = 2;
     int8 public constant UPVOTE_REWARD = 1;
     int8 public constant PER_PURCHASE_TOKENS = 10;
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
 
     constructor() {
         owner = msg.sender;
@@ -55,18 +99,24 @@ contract Derp is usingProvable {
     }
     */
 
-    function obtainReviewToken(address account, uint64 productId) external {
+    function requestReviewToken(address account, uint64 productId) external {
+        // Check if the product was already claimed.
         require(
-            !productsClaimed[account][productId],
+            productsClaimed[account][productId] == ProductState.UNCLAIMED,
             "Product already claimed"
         );
 
-        // Oracle?
-        bool boughtItem = true;
-        require(boughtItem);
+        emit ReviewTokenRequested(msg.sender, productId);
+    }
 
-        productsClaimed[account][productId] = true;
+    function rewardReviewToken(address account, uint64 productId)
+        external
+        onlyOwner
+    {
+        productsClaimed[account][productId] = ProductState.CLAIMED;
         reviewTokens[account] += PER_PURCHASE_TOKENS;
+
+        emit ReviewTokensGranted(account);
     }
 
     // Reviewer is msg.sender
@@ -76,7 +126,12 @@ contract Derp is usingProvable {
     {
         require(reviewTokens[msg.sender] >= REVIEW_COST, "Not enough tokens");
         require(!reviews[reviewHash]._initialized, "Review already exists");
-        require(productsClaimed[msg.sender][productId], "Product not claimed");
+
+        // Stops the user from making reviews of products they have not claimed.
+        require(
+            productsClaimed[msg.sender][productId] == ProductState.CLAIMED,
+            "Product not claimed or already reviewed"
+        );
 
         // Avoids creating a review for a product that doesn't exist.
         require(products[productId]._initialized, "Product doesn't exist");
@@ -95,6 +150,8 @@ contract Derp is usingProvable {
         reviewTokens[msg.sender] -= REVIEW_COST;
         profileTokens[msg.sender] += REVIEW_REWARD;
 
+        productsClaimed[msg.sender][productId] = ProductState.REVIEWED;
+
         return true;
     }
 
@@ -110,20 +167,17 @@ contract Derp is usingProvable {
         profileTokens[review.reviewer] += UPVOTE_REWARD;
     }
 
-    function refreshProducts() external {
-        // Oracle
+    function addProducts(uint64[] calldata productIds) external onlyOwner {
+        for (uint256 i = 0; i < productIds.length; ++i) {
+            Product memory p = Product({
+                _initialized: true,
+                reviewHashes: new bytes[](0)
+            });
 
-        uint64 storeId = 0;
-        uint64 localProductId = 1;
-
-        Product memory p = Product({
-            _initialized: true,
-            reviewHashes: new bytes[](0)
-        });
-
-        uint64 productId = (storeId << 32) | localProductId;
-
-        products[productId] = p;
+            if (!products[productIds[i]]._initialized) {
+                products[productIds[i]] = p;
+            }
+        }
     }
 
     // Utility functions below
