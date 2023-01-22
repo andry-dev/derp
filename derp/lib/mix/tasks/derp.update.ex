@@ -1,6 +1,6 @@
 defmodule Mix.Tasks.Derp.Update do
-
   use Mix.Task
+  alias JSON
 
   @shortdoc "Updates the contract ABI"
 
@@ -10,7 +10,12 @@ defmodule Mix.Tasks.Derp.Update do
 
   @impl Mix.Task
   def run(_args) do
-    File.copy!("../smart_contract/build/contracts/Derp.json", "assets/js/Derp-abi.json")
+    extractedAbi = File.read!("../smart_contract/build/contracts/Derp.json")
+    |> JSON.decode!() 
+    |> Map.get("abi")
+    |> JSON.encode!
+
+    File.write!("assets/js/Derp-abi.json", extractedAbi)
+    IO.puts("Saved new contract!")
   end
-  
 end

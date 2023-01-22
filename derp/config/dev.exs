@@ -10,6 +10,8 @@ config :derp, Derp.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+config :web3, rpc_endpoint: "http://localhost:9545"
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
