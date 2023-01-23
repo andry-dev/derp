@@ -4,7 +4,6 @@ defmodule Derp.Application do
   @moduledoc false
 
   use Application
-  use Web3, rpc_endpoint: "localhost:9545"
 
   # contract :Derp, contract_address: "", abi_path: ""
 
@@ -18,9 +17,10 @@ defmodule Derp.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: Derp.PubSub},
       # Start the Endpoint (http/https)
-      DerpWeb.Endpoint
+      DerpWeb.Endpoint,
       # Start a worker by calling: Derp.Worker.start_link(arg)
       # {Derp.Worker, arg}
+      Derp.Oracle
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

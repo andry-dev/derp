@@ -81,6 +81,7 @@ defmodule DerpWeb.Router do
     get "/users/settings", UserSettingsController, :edit
     put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+    resources "/stores", StoreController, except: [:index]
     resources "/reviews", ReviewController, except: [:index]
     resources "/products", ProductController, except: [:index]
   end
@@ -93,6 +94,7 @@ defmodule DerpWeb.Router do
     post "/users/confirm", UserConfirmationController, :create
     get "/users/confirm/:token", UserConfirmationController, :edit
     post "/users/confirm/:token", UserConfirmationController, :update
+    resources "/stores", StoreController, only: [:index]
     resources "/reviews", ReviewController, only: [:index]
     resources "/products", ProductController, only: [:index]
   end

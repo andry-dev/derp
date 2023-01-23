@@ -29,6 +29,8 @@ module.exports = async function (deployer) {
 
   console.log(`Added products: ${products}`);
 
+  await contract.methods.requestReviewToken;
+
   // JS needs BigInt for 64-bit integers
   await contract.methods.rewardReviewToken(reviewer, products[0]).send({
     from: server,
