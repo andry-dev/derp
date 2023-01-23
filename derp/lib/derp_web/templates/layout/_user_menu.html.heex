@@ -1,15 +1,30 @@
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<ul class="navbar-nav me-auto mb-2 mb-lg-0 drop-down">
   <li class="nav-item"><%= link "Your Reviews", class: "nav-link", to: Routes.review_path(@conn, :index) %></li>
   <li class="nav-item"><%= link "Your Products", class: "nav-link", to: Routes.product_path(@conn, :index) %></li>
+  <li class="nav-item"><%= link "Your Profile Items", class: "nav-link", to: Routes.product_path(@conn, :index) %></li>
 </ul>
 <ul class="navbar-nav">
 <%= if @current_user do %>
-  <li class="nav-item navbar-text mr-auto"><%= @current_user.email %></li>
-  <li class="nav-item"><%= link "Settings", class: "nav-link", to: Routes.user_settings_path(@conn, :edit) %></li>
-  <li class="nav-item"><%= link "Log out", class: "nav-link", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
+  <li class="nav-item dropdown mt-1">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Your profile
+    </a>
+    <ul class="dropdown-menu">
+      <li><%= link @current_user.username, class: "dropdown-item text-info", to: Routes.profile_path(@conn, :index) %></li>
+      <li><%= link "Settings", class: "dropdown-item", to: Routes.user_settings_path(@conn, :edit) %></li>
+      <li><%= link "Log out", class: "dropdown-item", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
+    </ul>
+  </li>
 <% else %>
-  <li class="nav-item"><%= link "Register", class: "nav-link", to: Routes.user_registration_path(@conn, :new) %></li>
-  <li class="nav-item"><%= link "Log in", class: "nav-link", to: Routes.user_session_path(@conn, :new) %></li>
+  <li class="nav-item dropdown mt-1">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Your profile
+    </a>
+    <ul class="dropdown-menu">
+      <li><%= link "Register", class: "dropdown-item", to: Routes.user_registration_path(@conn, :new) %></li>
+      <li><%= link "Log in", class: "dropdown-item", to: Routes.user_session_path(@conn, :new) %></li>
+    </ul>
+  </li>
 <% end %>
-  <li class="nav-item"><button class="btn btn-primary" onclick="ethEnabled()">Connect wallet</button></li>
+  <li class="nav-item mt-1"><button class="btn btn-primary" onclick="ethEnabled()">Connect wallet</button></li>
 </ul>
