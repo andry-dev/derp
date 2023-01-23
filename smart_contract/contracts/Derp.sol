@@ -60,7 +60,7 @@ contract Derp {
     // obtained.
     //
     // ReviewTokensGranted is emitted when the response is affirmative.
-    event ReviewTokenRequested(address account);
+    event AllReviewTokensRequested(address account);
     event ReviewTokenRequested(address account, uint64 product);
     event ReviewTokensGranted(address account);
 
@@ -85,18 +85,18 @@ contract Derp {
         owner = msg.sender;
     }
 
-    function requestAllReviewTokens(address account) external {
-        emit ReviewTokenRequested(account);
+    function requestAllReviewTokens() external {
+        emit AllReviewTokensRequested(msg.sender);
     }
 
-    function requestReviewToken(address account, uint64 productId) external {
+    function requestReviewToken(uint64 productId) external {
         // Check if the product was already claimed.
         require(
-            productsClaimed[account][productId] == ProductState.UNCLAIMED,
+            productsClaimed[msg.sender][productId] == ProductState.UNCLAIMED,
             "Product already claimed"
         );
 
-        emit ReviewTokenRequested(account, productId);
+        emit ReviewTokenRequested(msg.sender, productId);
     }
 
     function rewardReviewToken(address account, uint64 productId)
