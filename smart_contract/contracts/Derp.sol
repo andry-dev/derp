@@ -56,6 +56,17 @@ contract Derp {
     // Used to store on-chain the validity of the reviews.
     mapping(address => mapping(uint64 => ProductState)) private productsClaimed;
 
+    //Array used to retrieve all the profile items stored on-chain
+    //that can be bought with user tokens
+    //This could be expanded in the future with a struct
+    bytes[] private profileItems; 
+
+    //Mapping with the price of profile items
+    mapping(bytes => int64) private profileItemPrices;
+
+    //Mapping with a list of item profile purchased by a user
+    mapping(address => bytes[]) private userProfileItems;
+
     // Events emitted when an user wants to know if some review tokens can be
     // obtained.
     //
@@ -202,6 +213,16 @@ contract Derp {
         }
     }
 
+    function buyProfileItem(bytes calldata itemHash) external {
+        require(
+            profileItemPrices[itemHash] > profileTokens[msg.sender],
+            "Not enough tokens"
+        );
+
+        profileTokens[msg.sender] -= profileItemPrices[itemHash];
+        userProfileItems[msg.sender].push(itemHash); 
+    }
+
     // Utility functions below
     // You should only call these functions on your local node without
     // spending gas.
@@ -234,5 +255,13 @@ contract Derp {
 
     function getReviews() public view returns (bytes[] memory) {
         return reviewsFromAddress[msg.sender];
+    }
+
+    function getProfileItems() public view returns (bytes[] memory){
+        return userProfileItems[msg.sender];
+    }
+
+    function getBuyableProfileItems() public view returns (bytes[] memory){
+        return profileItems;
     }
 }
