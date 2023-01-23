@@ -50,7 +50,7 @@ defmodule Derp.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:web3, "~> 0.1.6"},
+      {:exw3, git: "https://github.com/yashh/exw3"},
       {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev},
       {:json, "~> 1.4"}
       # {:corsica, "~> 1.3"}

@@ -67,12 +67,18 @@
                 await ethEnabled();
               }
 
-              const reviewHashes = await contract.methods.getReviews().call();
+              const account = (await web3.eth.getAccounts())[0];
+
+              const res = await contract.methods.requestReviewToken(account, (1n << 32n | 2n)).send();
+
+              console.log(res);
+
+              const reviewHashes = await contract.methods.getReviews().send();
               //console.log(reviewHashes)
 
               this.reviews = []
 
-              for (i = 2; i < reviewHashes.length; i++) {
+              for (i = 0; i < reviewHashes.length; i++) {
 
                 //console.log(reviewHashes[i])
                 const asciiAddress = web3.utils.hexToAscii(reviewHashes[i])

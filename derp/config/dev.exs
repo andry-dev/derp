@@ -10,8 +10,6 @@ config :derp, Derp.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-config :web3, rpc_endpoint: "http://localhost:9545"
-
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
@@ -70,7 +68,7 @@ config :derp, DerpWeb.Endpoint,
       ~r"priv/gettext/.*(po)$",
       ~r"lib/derp_web/(live|views)/.*(ex)$",
       ~r"lib/derp_web/templates/.*(eex)$"
-    ],
+    ]
   ],
   watchers: [
     sass: {
@@ -89,3 +87,9 @@ config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
 config :phoenix, :plug_init_mode, :runtime
+
+config :ethereumex,
+  client_type: :http,
+  url: "http://localhost:9545"
+
+config :derp, :contract_address, "0xB82e55c6f652D7bEc20e8678292AAFb79b150340"
