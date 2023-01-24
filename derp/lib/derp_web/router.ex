@@ -27,9 +27,11 @@ defmodule DerpWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", DerpWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", DerpWeb do
+    pipe_through :api
+
+    resources "/review_requests", ReviewRequestController, only: [:create]
+  end
 
   # Enables LiveDashboard only for development
   #
