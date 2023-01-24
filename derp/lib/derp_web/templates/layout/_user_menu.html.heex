@@ -1,5 +1,4 @@
 <ul class="navbar-nav me-auto mb-2 mb-lg-0 drop-down">
-  <li class="nav-item"><%= link "Reviews", class: "nav-link", to: Routes.review_path(@conn, :index) %></li>
   <li class="nav-item"><%= link "Products", class: "nav-link", to: Routes.product_path(@conn, :index) %></li>
   <li class="nav-item"><%= link "Shop", class: "nav-link", to: Routes.itemshop_path(@conn, :index) %></li>
 </ul>
@@ -11,6 +10,7 @@
     </a>
     <ul class="dropdown-menu">
       <li><%= link @current_user.username, class: "dropdown-item text-info", to: Routes.profile_path(@conn, :index) %></li>
+      <li><%= link "Reviews", class: "dropdown-item", to: Routes.review_path(@conn, :index) %></li>
       <li><%= link "Settings", class: "dropdown-item", to: Routes.user_settings_path(@conn, :edit) %></li>
       <li><%= link "Log out", class: "dropdown-item", to: Routes.user_session_path(@conn, :delete), method: :delete %></li>
     </ul>

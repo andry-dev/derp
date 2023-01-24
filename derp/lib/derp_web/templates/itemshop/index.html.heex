@@ -8,6 +8,14 @@
         <div class="col col-sm-4 mt-2">
             <button class="btn btn-primary" id="refreshItems" @click="refresh()">Refresh items </button>
         </div>
+
+        <!-- Button trigger modal -->
+        <div class="col col-sm-4 mt-2">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tempAddModal">
+                temp add modal
+            </button>
+        </div>
+
     </div>
 
     <div class="row mt-2">
@@ -36,7 +44,45 @@
             </div>
         </template>
     </div>
+
+    <div class="modal" tabindex="-1" id="tempAddModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form class="form" x-data="addForm()" @submit.prevent="submitForm">
+                    <div class="mb-3">
+                        <label for="itemName" class="form-label">Item name</label>
+                        <input type="text" class="form-control" id="itemName" x-model="formData.name" aria-describedby="itemName">
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemDesc" class="form-label">Item description</label>
+                        <input type="text" class="form-control" id="itemDesc" x-model="formData.desc" aria-describedby="itemDesc">
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemPrice" class="form-label">Item price</label>
+                        <input type="text" class="form-control" id="itemPrice" x-model="formData.price" aria-describedby="itemPrice">
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemAspect" class="form-label">Item aspect</label>
+                        <input type="text" class="form-control" id="itemAspect" x-model="formData.url" aria-describedby="itemAspect">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </form>
+            </div>
+            </div>
+        </div>
+    </div>
+
+
 </div>
+
+
 
 <script>
     document.addEventListener('alpine:init', () => {
@@ -52,10 +98,9 @@
 
                 this.items = [];
 
-                /*
-                for (i = 0; i < items.length; i++) {
+                for (i = 0; i < itemHashes.length; i++) {
 
-                    const asciiAddress = web3.utils.hexToAscii(reviewHashes[i])
+                    const asciiAddress = web3.utils.hexToAscii(itemHashes[i])
                     //console.log(asciiAddress)
                     const stream = await ipfs.cat(asciiAddress);
 
@@ -70,13 +115,14 @@
                     const json_data = JSON.parse(data);
 
                     this.items.push({
-                        item_id: json_data.itemId,
-                        name: json_data.itemName,
-                        desc: json_data.itemDesc,
-                        price: json_data.itemPrice,
-                        aspect: json_data.itemAspect,
+                        item_id: 1,
+                        name: json_data.name,
+                        desc: json_data.desc,
+                        price: json_data.price,
+                        aspect: json_data.url,
                     });
-                }*/
+
+                }
 
                 this.items.push({
                     id: 1,
@@ -113,7 +159,6 @@
   });
 </script>
 
-
 <script>
     function buyForm() {
         return {
@@ -123,6 +168,34 @@
             async submitForm() {
                 console.log(this.formData.profileItemId)
                 console.log("yaay");
+            }
+        }
+    }
+</script>
+
+<script>
+    function addForm() {
+        return {
+            formData: {
+                name: "",
+                desc: "",
+                price: "",
+                url: ""
+            },
+            async submitForm() {
+                const response = await ipfs.add(JSON.stringify(this.formData));
+                const itemHash = response.path;
+
+                if (!window.contract) {
+                    await ethEnabled();
+                }
+
+                //grab CID hash and convert to bytes32
+                const bytes32ItemHash = web3.utils.fromAscii(itemHash);
+                await window.contract.methods.addProfileItem(bytes32ItemHash, this.formData.price).send();
+
+                window.location.href="/itemshop"
+
             }
         }
     }
