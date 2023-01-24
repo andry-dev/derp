@@ -1,87 +1,155 @@
 defmodule Derp.Oracle do
-  use Supervisor
+  @moduledoc """
+  The Oracle context.
+  """
+
+  import Ecto.Query, warn: false
+  alias Derp.Repo
+
+  alias Derp.Oracle.ReviewRequest
+
+  import Bitwise
   require Logger
 
-  def start_link(_args) do
-    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+  @doc """
+  Returns the list of review_requests.
+
+  ## Examples
+
+      iex> list_review_requests()
+      [%ReviewRequest{}, ...]
+
+  """
+  def list_review_requests do
+    Repo.all(ReviewRequest)
   end
 
-  def init(_init_arg) do
-    contract_abi = ExW3.Abi.load_abi("assets/js/Derp-abi.json")
-    ExW3.Contract.start_link()
-    ExW3.Contract.register(:Derp, abi: contract_abi)
-    ExW3.Contract.at(:Derp, Application.fetch_env!(:derp, :contract_address))
+  @doc """
+  Gets a single review_request.
 
-    children = [
-      Derp.Oracle.ReviewTokenRequest,
-      # Derp.Oracle.AllReviewTokenRequest,
-      Derp.Oracle.RefreshProductRequest
-    ]
+  Raises `Ecto.NoResultsError` if the Review request does not exist.
 
-    Supervisor.init(children, strategy: :one_for_one)
+  ## Examples
+
+      iex> get_review_request!(123)
+      %ReviewRequest{}
+
+      iex> get_review_request!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_review_request!(id), do: Repo.get!(ReviewRequest, id)
+
+  def should_we_pay_request?(table, address) do
+    now = DateTime.utc_now()
+    day_start = %DateTime{now | hour: 0, minute: 0, second: 0}
+    day_end = %DateTime{now | hour: 23, minute: 59, second: 59}
+
+    query =
+      from r in table,
+        select: r.address,
+        where:
+          r.address == ^address and
+            r.updated_at >= ^day_start and
+            r.updated_at <= ^day_end
+
+    Repo.exists?(query)
   end
 
-  defmodule ReviewTokenRequest do
-    use Task, restart: :permanent
+  @doc """
+  Creates a review_request.
 
-    def start_link(_arg) do
-      {:ok, review_token_req_filter} = ExW3.Contract.filter(:Derp, "ReviewTokenRequested")
+  ## Examples
 
-      state = [
-        filter_id: review_token_req_filter
-      ]
+      iex> create_review_request(%{field: value})
+      {:ok, %ReviewRequest{}}
 
-      Task.start_link(__MODULE__, :run, [state])
-    end
+      iex> create_review_request(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
 
-    def run(state) do
-      filter_id = state[:filter_id]
-      {:ok, changes} = ExW3.Contract.get_filter_changes(filter_id)
-      handle_changes(changes)
-      :timer.sleep(1000)
-      run(state)
-    end
+  """
+  def create_review_request(attrs \\ %{}) do
+    changeset =
+      %ReviewRequest{}
+      |> ReviewRequest.create_changeset(attrs)
 
-    def handle_changes([]) do
+    IO.inspect(changeset)
 
-    end
-
-    def handle_changes(changes) do
-      Logger.info("Got ReviewToken request!\n\t #{inspect(changes)}")
+    if should_we_pay_request?(ReviewRequest, changeset.changes.address) do
+      {:error, :review_token_already_requested}
+    else
+      Repo.insert_or_update(changeset)
     end
   end
 
-  defmodule AllReviewTokenRequest do
-    use Task, restart: :permanent
+  @doc """
+  Updates a review_request.
+
+  ## Examples
+
+      iex> update_review_request(review_request, %{field: new_value})
+      {:ok, %ReviewRequest{}}
+
+      iex> update_review_request(review_request, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_review_request(%ReviewRequest{} = review_request, attrs) do
+    review_request
+    |> ReviewRequest.changeset(attrs)
+    |> Repo.update()
   end
 
-  defmodule RefreshProductRequest do
-    use Task, restart: :permanent
+  @doc """
+  Deletes a review_request.
 
-    def start_link(_arg) do
-    {:ok, product_req_filter} = ExW3.Contract.filter(:Derp, "ProductRefreshRequested")
+  ## Examples
 
-      state = [
-        filter_id: product_req_filter
-      ]
+      iex> delete_review_request(review_request)
+      {:ok, %ReviewRequest{}}
 
-      Task.start_link(__MODULE__, :run, [state])
-    end
+      iex> delete_review_request(review_request)
+      {:error, %Ecto.Changeset{}}
 
-    def run(state) do
-      filter_id = state[:filter_id]
-      {:ok, changes} = ExW3.Contract.get_filter_changes(filter_id)
-      handle_changes(changes)
-      :timer.sleep(1000)
-      run(state)
-    end
+  """
+  def delete_review_request(%ReviewRequest{} = review_request) do
+    Repo.delete(review_request)
+  end
 
-    def handle_changes([]) do
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking review_request changes.
 
-    end
+  ## Examples
 
-    def handle_changes(changes) do
-      Logger.info("Got ProductRefresh request! \n #{inspect(changes)}")
-    end
+      iex> change_review_request(review_request)
+      %Ecto.Changeset{data: %ReviewRequest{}}
+
+  """
+  def change_review_request(%ReviewRequest{} = review_request, attrs \\ %{}) do
+    ReviewRequest.changeset(review_request, attrs)
+  end
+
+
+  @stores [%{url: "http://localhost:8080"}]
+
+  # Request all tokens for all products
+  def refresh_reviews_for_user(_address, []) do
+
+  end
+
+  # Request just one
+  def refresh_reviews_for_user(address, products) do
+    Enum.map(products, fn p -> 
+      store_id = p &&& (0xFFFFFFFF <<< 32)
+      product_id = p &&& 0xFFFFFFFF
+
+      _bought_items = request_external_store(address, Enum.at(@stores, store_id), product_id)
+    end)
+  end
+
+  defp request_external_store(address, store, product) do
+    Logger.info("#{store}/#{product} - #{address}")
+
+    []
   end
 end
