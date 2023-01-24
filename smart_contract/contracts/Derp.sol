@@ -223,6 +223,18 @@ contract Derp {
         userProfileItems[msg.sender].push(itemHash); 
     }
 
+    //This function allows to register new NFTS for the profile
+    //It can be called only by the server
+    function addProfileItem(bytes calldata itemHash, int64 price)
+        external
+        onlyOwner
+    {
+        //itemHash is the hash of the css from ipfs
+        profileItems.push(itemHash);
+        //We also update the price in the mapping
+        profileItemPrices[itemHash] = price;
+    }
+
     // Utility functions below
     // You should only call these functions on your local node without
     // spending gas.

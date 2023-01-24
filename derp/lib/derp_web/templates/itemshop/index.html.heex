@@ -1,0 +1,129 @@
+<div class="container-fluid" x-data="itemData">
+
+    <div class="row">
+        <div class="col-sm-4">
+            <h1 class="text-center">Buyable Items</h1>
+        </div>
+
+        <div class="col col-sm-4 mt-2">
+            <button class="btn btn-primary" id="refreshItems" @click="refresh()">Refresh items </button>
+        </div>
+    </div>
+
+    <div class="row mt-2">
+        <template x-for="item in items">
+            <div class="col-sm-4">
+                <div class="card mb-4">
+                    <div class="card-body h-50">
+                        <img class="card-img-top" x-bind:src="item.aspect" alt="Card image cap">
+                        <h5 class="card-title" x-text="item.name"></h5>
+                        <p class="card-text" x-text="item.desc"></p>
+                        <p class="card-text" x-text="item.price"></p>
+
+                        <form class="form" x-data="buyForm()" @submit.prevent="submitForm">
+
+                            <!--hardcoded for now-->
+                            <input type="hidden" x-model.number="formData.profileItemId" value="1"/>
+
+                            <button class="btn btn-primary">
+                                Buy
+                            </button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('itemData', () => ({
+            items: [ ],
+
+            async refresh() {
+                if (!window.contract) {
+                    await ethEnabled();
+                }
+
+                const itemHashes = await contract.methods.getBuyableProfileItems().call();
+
+                this.items = [];
+
+                /*
+                for (i = 0; i < items.length; i++) {
+
+                    const asciiAddress = web3.utils.hexToAscii(reviewHashes[i])
+                    //console.log(asciiAddress)
+                    const stream = await ipfs.cat(asciiAddress);
+
+                    const decoder = new TextDecoder()
+                    let data = ''
+
+                    for await (const chunk of stream) {
+                        // chunks of data are returned as a Uint8Array, convert it back to a string
+                        data += decoder.decode(chunk, { stream: true })
+                    }
+
+                    const json_data = JSON.parse(data);
+
+                    this.items.push({
+                        item_id: json_data.itemId,
+                        name: json_data.itemName,
+                        desc: json_data.itemDesc,
+                        price: json_data.itemPrice,
+                        aspect: json_data.itemAspect,
+                    });
+                }*/
+
+                this.items.push({
+                    id: 1,
+                    name: "RED",
+                    desc: "RED",
+                    price: 1,
+                    aspect: "https://picsum.photos/500/500",
+                });
+
+                this.items.push({
+                    id: 1,
+                    name: "RED",
+                    desc: "RED",
+                    price: 1,
+                    aspect: "https://picsum.photos/500/500",
+                });
+
+                this.items.push({
+                    id: 1,
+                    name: "RED",
+                    desc: "RED",
+                    price: 1,
+                    aspect: "https://picsum.photos/500/500",
+                });
+
+            }
+        }))
+    });
+</script>
+
+<script>
+  window.addEventListener('load', function(){
+    document.getElementById("refreshItems").click();
+  });
+</script>
+
+
+<script>
+    function buyForm() {
+        return {
+            formData: {
+                profileItemId: 1,
+            },
+            async submitForm() {
+                console.log(this.formData.profileItemId)
+                console.log("yaay");
+            }
+        }
+    }
+</script>
