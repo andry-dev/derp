@@ -52,6 +52,11 @@ module.exports = async function (deployer) {
 
   console.log(allProducts);
 
+  const buyableItems = await contract.methods.getBuyableProfileItems().call({
+    from: server,
+  });
+  console.log(buyableItems)
+
   // const reviewHash = 0x1234;
   // //unless 1mln of gas is specified this fails
   // //might need to check config
