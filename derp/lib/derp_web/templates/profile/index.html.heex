@@ -5,7 +5,7 @@
             <div class="row g-0">
             <div class="col-md-4 gradient-custom text-center"
                 style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
-                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
+                <img id="avatar" src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
                 alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
                 <h5> <%= @user.username %> </h5>
                 <p>ETH token enthusiast </p>
@@ -57,26 +57,26 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <.form class="form" let={f} for={@changeset} action={Routes.profile_path(@conn, :update)}>
+                    <.form class="form" for={@changeset} action={Routes.profile_path(@conn, :update)}>
                         <div class="mb-3" x-data="itemData">
 
                             <p> Use the right name to select the aspect you wish to apply </p>
 
-                            <select class="form-select mt-4" aria-label="Default select example">
+                            <select id="custom_propic" name="user[custom_propic]" class="form-select mt-4" aria-label="Default select example">
                                 <template x-for="item in itemsPropic">
-                                    <option x-text="item.name" name="asciiAddress"></option>
+                                    <option x-text="item.name" :value="item.asciiAddress"></option>
                                 </template>
                             </select>
 
-                            <select class="form-select mt-4" aria-label="Default select example">
+                            <select name="user[custom_banner]" class="form-select mt-4" aria-label="Default select example">
                                 <template x-for="item in itemsBanner">
-                                    <option x-text="item.name" name="asciiAddress"></option>
+                                    <option x-text="item.name" :value="item.asciiAddress"></option>
                                 </template>
                             </select>
 
-                            <select class="form-select mt-4" aria-label="Default select example">
+                            <select name="user[custom_bg_color]" class="form-select mt-4" aria-label="Default select example">
                                 <template x-for="item in itemsBackground">
-                                    <option x-text="item.name" name="asciiAddress"></option>
+                                    <option x-text="item.name" :value="item.asciiAddress"></option>
                                 </template>
                             </select>
 
@@ -148,6 +148,29 @@
 
             }
         }))
+
+        <%= if @user.custom_propic do %>
+        async function update_current_profile() {
+          let current_propic = "<%= @user.custom_propic %>";
+
+          const stream = await ipfs.cat(current_propic);
+
+          const decoder = new TextDecoder()
+          let data = ''
+
+          for await (const chunk of stream) {
+              // chunks of data are returned as a Uint8Array, convert it back to a string
+              data += decoder.decode(chunk, { stream: true })
+          }
+
+          const json_data = JSON.parse(data);
+          console.log(json_data);
+          document.querySelectorAll("#avatar")[0].src = json_data.url;
+
+        }
+
+        update_current_profile();
+        <% end %>
     });
 
 </script>
