@@ -1,16 +1,13 @@
 <div class="container-fluid" x-data="itemData">
 
     <div class="row">
-        <div class="col-sm-4">
-            <h1 class="text-center">Buyable Items</h1>
+        <div class="col-sm-8">
+            <h1>Buyable Items</h1>
         </div>
 
+         <!-- Button trigger modal -->
         <div class="col col-sm-4 mt-2">
             <button class="btn btn-primary" id="refreshItems" @click="refresh()">Refresh items </button>
-        </div>
-
-        <!-- Button trigger modal -->
-        <div class="col col-sm-4 mt-2">
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tempAddModal">
                 temp add modal
             </button>
@@ -27,12 +24,9 @@
                         <h5 class="card-title" x-text="item.name"></h5>
                         <p class="card-text" x-text="item.desc"></p>
                         <p class="card-text" x-text="item.price"></p>
+                        <p class="card-text" x-text="item.type"></p>
 
-                        <form class="form" x-data="buyForm()" @submit.prevent="submitForm">
-
-                            <!--hardcoded for now-->
-                            <input type="hidden" x-model.number="formData.profileItemId" value="1"/>
-
+                        <form class="form" x-data="buyForm()" @submit.prevent="submitForm(item.asciiAddress)">
                             <button class="btn btn-primary">
                                 Buy
                             </button>
@@ -65,6 +59,10 @@
                     <div class="mb-3">
                         <label for="itemPrice" class="form-label">Item price</label>
                         <input type="text" class="form-control" id="itemPrice" x-model="formData.price" aria-describedby="itemPrice">
+                    </div>
+                    <div class="mb-3">
+                        <label for="itemType" class="form-label">Item type</label>
+                        <input type="text" class="form-control" id="itemType" x-model="formData.type" aria-describedby="itemType">
                     </div>
                     <div class="mb-3">
                         <label for="itemAspect" class="form-label">Item aspect</label>
@@ -115,38 +113,15 @@
                     const json_data = JSON.parse(data);
 
                     this.items.push({
-                        item_id: 1,
+                        asciiAddress: asciiAddress,
                         name: json_data.name,
                         desc: json_data.desc,
                         price: json_data.price,
+                        type: json_data.type,
                         aspect: json_data.url,
                     });
 
                 }
-
-                this.items.push({
-                    id: 1,
-                    name: "RED",
-                    desc: "RED",
-                    price: 1,
-                    aspect: "https://picsum.photos/500/500",
-                });
-
-                this.items.push({
-                    id: 1,
-                    name: "RED",
-                    desc: "RED",
-                    price: 1,
-                    aspect: "https://picsum.photos/500/500",
-                });
-
-                this.items.push({
-                    id: 1,
-                    name: "RED",
-                    desc: "RED",
-                    price: 1,
-                    aspect: "https://picsum.photos/500/500",
-                });
 
             }
         }))
@@ -162,12 +137,15 @@
 <script>
     function buyForm() {
         return {
-            formData: {
-                profileItemId: 1,
-            },
-            async submitForm() {
-                console.log(this.formData.profileItemId)
-                console.log("yaay");
+            async submitForm(asciiAddress) {
+                if (!window.contract) {
+                    await ethEnabled();
+                }
+
+                const bytes32ItemHash = web3.utils.fromAscii(asciiAddress);
+                const result = await window.contract.methods.buyProfileItem(bytes32ItemHash).send();
+
+                window.location.href="/itemshop";
             }
         }
     }
@@ -180,7 +158,8 @@
                 name: "",
                 desc: "",
                 price: "",
-                url: ""
+                type: "",
+                url: "",
             },
             async submitForm() {
                 const response = await ipfs.add(JSON.stringify(this.formData));
