@@ -389,4 +389,11 @@ defmodule Derp.Accounts do
       {:error, :user, changeset, _} -> {:error, changeset}
     end
   end
+
+
+  def update_profile_customizations(user, attrs) do
+    user
+    |> User.custom_profile_changeset(attrs)
+    |> Repo.update()
+  end
 end

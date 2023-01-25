@@ -6,7 +6,7 @@ fi
 
 ${docker_cmd} run -d --name derp_postgres --rm -v derp_db:/var/lib/postgresql/data -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:alpine
 
-${docker_cmd} run -d --name derp_ipfs --rm \
+${docker_cmd} run --name derp_ipfs --rm \
     -v derp_ipfs_host:/export:Z \
     -v derp_ipfs_data:/data/ipfs:Z \
     -p 4001:4001 \
