@@ -19,11 +19,15 @@ const transactions = [
     product_id: 3,
     date: new Date("2023-01-12T00:15:30.000Z"),
   },
+  {
+    address: 0xbcd0bb18140a21ada3c9d7dd494c173e53a3640fn,
+    product_id: 2,
+  },
 ];
 
 const server_url = "http://localhost:8080";
 const productQueryRoute = new URLPattern({
-  pathname: "/check/:store/:product",
+  pathname: "/check/:product",
 });
 
 console.log(transactions);
@@ -34,7 +38,7 @@ for await (const conn of server) {
   serveHttp(conn);
 }
 
-async function serveBoughtProducts(requestEvent) {
+async function serveBoughtProducts(requestEvent: Deno.RequestEvent) {
   const requestJSON = await requestEvent.request.json();
 
   const boughtProducts = transactions.filter((t) => {
@@ -65,10 +69,27 @@ async function serveBoughtProducts(requestEvent) {
   );
 }
 
-async function checkBoughtProduct(requestEvent, store, product) {
-  const body = {};
+async function checkBoughtProduct(
+  requestEvent: Deno.RequestEvent,
+  product: number,
+) {
+  if (!requestEvent.request.body) {
+    return requestEvent.respondWith(
+      Response.json({ error: "Not a JSON request!" }, { status: 400 }),
+    );
+  }
+  const requestJson = await requestEvent.request.json();
 
-  requestEvent.respondWith(
+  const boughtProducts = transactions.filter((t) => {
+    return t.address === BigInt(requestJson.address) &&
+      t.product_id === product;
+  });
+
+  const body = {
+    bought: boughtProducts.length > 0,
+  };
+
+  return requestEvent.respondWith(
     Response.json(body, {
       status: 200,
     }),
@@ -83,14 +104,16 @@ async function serveHttp(conn: Deno.Conn) {
   for await (const requestEvent of httpConn) {
     console.log(requestEvent.request.url);
 
-    let match = product_query_route.exec(requestEvent.request.url);
+    const match = productQueryRoute.exec(requestEvent.request.url);
     if (match) {
       const groups = match.pathname.groups;
-      checkBoughtProduct(requestEvent, groups.store, groups.product);
-    }
-
-    if (requestEvent.request.url === server_url) {
+      checkBoughtProduct(requestEvent, Number(groups.product));
+    } else if (requestEvent.request.url === server_url) {
       serveBoughtProducts(requestEvent);
+    } else {
+      requestEvent.respondWith(
+        Response.json({}, { status: 400 }),
+      );
     }
   }
 }

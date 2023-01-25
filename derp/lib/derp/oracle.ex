@@ -129,27 +129,61 @@ defmodule Derp.Oracle do
     ReviewRequest.changeset(review_request, attrs)
   end
 
-
   @stores [%{url: "http://localhost:8080"}]
+
+
+  def decode_product_id(product) do
+    store_id = (product &&& (0xFFFFFFFF <<< 32)) >>> 32
+    product_id = product &&& 0xFFFFFFFF
+
+    {store_id, product_id}
+  end
+
+  def encode_product_id(store, product) do
+    (store <<< 32) ||| product
+  end
 
   # Request all tokens for all products
   def refresh_reviews_for_user(_address, []) do
-
+    false
   end
 
   # Request just one
-  def refresh_reviews_for_user(address, products) do
-    Enum.map(products, fn p -> 
-      store_id = p &&& (0xFFFFFFFF <<< 32)
-      product_id = p &&& 0xFFFFFFFF
+  def refresh_reviews_for_user(address, products) when is_list(products) do
+    Enum.each(products, fn p ->
+      {store_id, product_id} = decode_product_id(p)
 
-      _bought_items = request_external_store(address, Enum.at(@stores, store_id), product_id)
+      user_bought_product?(address, Enum.at(@stores, store_id), product_id)
     end)
   end
 
-  defp request_external_store(address, store, product) do
-    Logger.info("#{store}/#{product} - #{address}")
+  def refresh_reviews_for_user(address, product) do
+      {store_id, product_id} = decode_product_id(product)
 
-    []
+      user_bought_product?(address, store_id, product_id)
+  end
+
+  defp user_bought_product?(address, 1, product) do
+    Logger.info("Trying to check if #{address} bought #{product} for store 1...")
+
+    store_url = "localhost:8080/check/#{product}"
+    headers = [{"Content-Type", "application/json"}]
+
+    case Jason.encode(%{address: address}) do
+      {:ok, json} ->
+        case  HTTPoison.post(store_url, json, headers) do
+          {:ok, response} ->
+            case Jason.decode(response.body) do
+              {:ok, %{"bought" => result}} -> {:ok, result}
+              error -> error
+            end
+          error -> error
+        end
+      error -> error
+    end
+  end
+
+  defp user_bought_product?(_address, store, _product) do
+    {:error, "Unknown store #{store}"}
   end
 end
