@@ -29,7 +29,6 @@ import topbar from "../vendor/topbar";
 
 import Alpine from "alpinejs";
 window.Alpine = Alpine;
-Alpine.start();
 
 import contractAbi from "./Derp-abi.json";
 
@@ -69,7 +68,7 @@ const ethEnabled = async () => {
     window.contract = new window.web3.eth.Contract(contractAbi);
     window.contract.options.from = window.ethereum.selectedAddress;
     window.contract.options.address =
-      "0xC7A4B39994C9DD319343FE65ce71481356deC180";
+      "0x351C0625212c96198FC97E25434Faa05328f82d4";
 
     return true;
   }
@@ -77,3 +76,4 @@ const ethEnabled = async () => {
 };
 
 window.ethEnabled = ethEnabled;
+Alpine.start();

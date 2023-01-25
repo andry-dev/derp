@@ -215,7 +215,7 @@ contract Derp {
 
     function buyProfileItem(bytes calldata itemHash) external {
         require(
-            profileItemPrices[itemHash] > profileTokens[msg.sender],
+            profileTokens[msg.sender] > profileItemPrices[itemHash],
             "Not enough tokens"
         );
 
@@ -274,5 +274,9 @@ contract Derp {
 
     function getBuyableProfileItems() public view returns (bytes[] memory){
         return profileItems;
+    }
+
+    function getUserProfileItems() public view returns (bytes[] memory){
+        return userProfileItems[msg.sender];
     }
 }

@@ -86,7 +86,7 @@ defmodule DerpWeb.Router do
     resources "/stores", StoreController, except: [:index]
     resources "/reviews", ReviewController, except: [:index]
     resources "/products", ProductController, except: [:index]
-    resources "/profile", ProfileController, only: [:index, :show]
+    resources "/profile", ProfileController, only: [:index, :show, :update]
     resources "/itemshop", ItemshopController, only: [:index, :show]
   end
 

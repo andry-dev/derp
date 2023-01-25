@@ -6,11 +6,8 @@
               <h1>Reviews</h1>
             </div>
 
-            <div class="col col-sm-2">
+            <div class="col col-sm-4">
               <%= link "New Review", to: Routes.review_path(@conn, :new), class: "btn btn-primary" %>
-            </div>
-
-            <div class="col col-sm-2">
               <button class="btn btn-primary" id="refreshReviews" @click="refresh()">Refresh reviews</button>
             </div>
         </div>
@@ -64,8 +61,6 @@
               if (!window.contract) {
                 await ethEnabled();
               }
-
-              console.log(res);
 
               const reviewHashes = await contract.methods.getReviews().send();
               //console.log(reviewHashes)

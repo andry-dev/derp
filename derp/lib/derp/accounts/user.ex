@@ -8,6 +8,12 @@ defmodule Derp.Accounts.User do
     field :password, :string, virtual: true, redact: true
     field :hashed_password, :string, redact: true
     field :confirmed_at, :naive_datetime
+    #3 attributes that contain the IPFS hash of the
+    #NFT customization items currently selected by
+    #the user to show on their profile page
+    field :custom_banner, :string
+    field :custom_propic, :string
+    field :custom_bg_color, :string
 
     timestamps()
   end
@@ -92,7 +98,6 @@ defmodule Derp.Accounts.User do
     end
   end
 
-
   @doc """
   A user changeset for changing the username.
 
@@ -108,6 +113,17 @@ defmodule Derp.Accounts.User do
       %{} = changeset -> add_error(changeset, :username, "did not change")
     end
   end
+
+
+  @doc """
+  A user changeset for changing the custom banner.
+  """
+
+  def custom_profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:custom_banner, :custom_propic, :custom_bg_color])
+  end
+
 
   @doc """
   A user changeset for changing the password.
