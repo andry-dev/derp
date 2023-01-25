@@ -92,4 +92,6 @@ config :ethereumex,
   client_type: :http,
   url: "http://localhost:9545"
 
-config :derp, :contract_address, "0xB82e55c6f652D7bEc20e8678292AAFb79b150340"
+config :derp,
+  contract_address: "0xBCD0BB18140a21ADA3c9d7dD494c173e53a3640F"
+  # server_address: Enum.at(ExW3.accounts, 0)

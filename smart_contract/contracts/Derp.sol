@@ -59,7 +59,7 @@ contract Derp {
     //Array used to retrieve all the profile items stored on-chain
     //that can be bought with user tokens
     //This could be expanded in the future with a struct
-    bytes[] private profileItems; 
+    bytes[] private profileItems;
 
     //Mapping with the price of profile items
     mapping(bytes => int64) private profileItemPrices;
@@ -114,10 +114,12 @@ contract Derp {
         external
         onlyOwner
     {
-        productsClaimed[account][productId] = ProductState.CLAIMED;
-        reviewTokens[account] += PER_PURCHASE_TOKENS;
+        if (productsClaimed[account][productId] == ProductState.UNCLAIMED) {
+            productsClaimed[account][productId] = ProductState.CLAIMED;
+            reviewTokens[account] += PER_PURCHASE_TOKENS;
 
-        emit ReviewTokensGranted(account);
+            emit ReviewTokensGranted(account);
+        }
     }
 
     function rewardReviewTokens(address account, uint64[] calldata productIds)
@@ -131,10 +133,10 @@ contract Derp {
             ) {
                 productsClaimed[account][productIds[i]] = ProductState.CLAIMED;
                 reviewTokens[account] += PER_PURCHASE_TOKENS;
+
+                emit ReviewTokensGranted(account);
             }
         }
-
-        emit ReviewTokensGranted(account);
     }
 
     // Reviewer is msg.sender
@@ -220,7 +222,7 @@ contract Derp {
         );
 
         profileTokens[msg.sender] -= profileItemPrices[itemHash];
-        userProfileItems[msg.sender].push(itemHash); 
+        userProfileItems[msg.sender].push(itemHash);
     }
 
     //This function allows to register new NFTS for the profile
@@ -268,11 +270,11 @@ contract Derp {
         return reviewsFromAddress[msg.sender];
     }
 
-    function getProfileItems() public view returns (bytes[] memory){
+    function getProfileItems() public view returns (bytes[] memory) {
         return userProfileItems[msg.sender];
     }
 
-    function getBuyableProfileItems() public view returns (bytes[] memory){
+    function getBuyableProfileItems() public view returns (bytes[] memory) {
         return profileItems;
     }
 

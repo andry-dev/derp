@@ -52,7 +52,8 @@ defmodule Derp.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:exw3, git: "https://github.com/yashh/exw3"},
       {:dart_sass, "~> 0.5", runtime: Mix.env() == :dev},
-      {:json, "~> 1.4"}
+      {:json, "~> 1.4"},
+      {:httpoison, "~> 2.0"}
       # {:corsica, "~> 1.3"}
       # {:cors_plug, "~> 3.0"}
     ]

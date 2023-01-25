@@ -20,7 +20,7 @@ defmodule Derp.Application do
       DerpWeb.Endpoint,
       # Start a worker by calling: Derp.Worker.start_link(arg)
       # {Derp.Worker, arg}
-      Derp.Oracle.EventHandler
+      Derp.Oracle.EventHandler,
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
