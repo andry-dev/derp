@@ -6,7 +6,10 @@ defmodule DerpWeb.ProfileController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
-    render(conn, "index.html", user: user)
+
+    changeset = User.custom_profile_changeset(user, %{})
+
+    render(conn, "index.html", user: user, changeset: changeset)
   end
 
   def show(conn, %{"id" => id}) do

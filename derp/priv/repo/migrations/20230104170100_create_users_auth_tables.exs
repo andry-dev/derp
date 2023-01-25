@@ -9,6 +9,9 @@ defmodule Derp.Repo.Migrations.CreateUsersAuthTables do
       add :username, :string, null: false
       add :hashed_password, :string, null: false
       add :confirmed_at, :naive_datetime
+      add :custom_banner, :string, null: true
+      add :custom_propic, :string, null: true
+      add :custom_bg_color, :string, null: true
       timestamps()
     end
 

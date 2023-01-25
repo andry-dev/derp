@@ -9,7 +9,12 @@
                 alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
                 <h5> <%= @user.username %> </h5>
                 <p>ETH token enthusiast </p>
-                <a> Placeholder link to store</a>
+
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tempAddModal">
+                    Customize profile
+                </button>
+
             </div>
             <div class="col-md-8">
                 <div class="card-body p-4">
@@ -43,4 +48,106 @@
         </div>
         </div>
     </div>
+
+    <div class="modal" tabindex="-1" id="tempAddModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Select NFTs to customise profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <.form class="form" let={f} for={@changeset} action={Routes.profile_path(@conn, :update)}>
+                        <div class="mb-3" x-data="itemData">
+
+                            <p> Use the right name to select the aspect you wish to apply </p>
+
+                            <select class="form-select mt-4" aria-label="Default select example">
+                                <template x-for="item in itemsPropic">
+                                    <option x-text="item.name" name="asciiAddress"></option>
+                                </template>
+                            </select>
+
+                            <select class="form-select mt-4" aria-label="Default select example">
+                                <template x-for="item in itemsBanner">
+                                    <option x-text="item.name" name="asciiAddress"></option>
+                                </template>
+                            </select>
+
+                            <select class="form-select mt-4" aria-label="Default select example">
+                                <template x-for="item in itemsBackground">
+                                    <option x-text="item.name" name="asciiAddress"></option>
+                                </template>
+                            </select>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </.form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('itemData', () => ({
+            itemsPropic: [ ],
+            itemsBanner: [ ],
+            itemsBackground : [ ],
+
+            async init() {
+                if (!window.contract) {
+                    await ethEnabled();
+                }
+
+                const itemHashes = await contract.methods.getUserProfileItems().call();
+
+                this.itemsPropic = [];
+                this.itemsBanner = [];
+                this.itemsBackground = [];
+
+                for (i = 0; i < itemHashes.length; i++) {
+
+                    const asciiAddress = web3.utils.hexToAscii(itemHashes[i])
+                    //console.log(asciiAddress)
+                    const stream = await ipfs.cat(asciiAddress);
+
+                    const decoder = new TextDecoder()
+                    let data = ''
+
+                    for await (const chunk of stream) {
+                        // chunks of data are returned as a Uint8Array, convert it back to a string
+                        data += decoder.decode(chunk, { stream: true })
+                    }
+
+                    const json_data = JSON.parse(data);
+
+                    if(json_data.type == "BG"){
+                        this.itemsPropic.push({
+                            name: json_data.name,
+                            asciiAddress: asciiAddress,
+                        })
+                    }
+                    else if (json_data.type == "PI"){
+                        this.itemsBanner.push({
+                            name: json_data.name,
+                            asciiAddress: asciiAddress,
+                        });
+                    } else {
+                        this.itemsBackground.push({
+                            name: json_data.name,
+                            asciiAddress: asciiAddress,
+                        });
+                    }
+
+                }
+
+            }
+        }))
+    });
+
+</script>
