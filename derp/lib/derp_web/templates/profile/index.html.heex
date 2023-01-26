@@ -1,4 +1,4 @@
-<div class="container-fluid py-5" x-data="itemData">
+<div class="container-fluid py-5" x-data="itemData" :style="currentlySelectedBackground">
     <div class="row d-flex align-items-center h-100">
         <div class="col col-lg-12 mb-4 mb-lg-0">
         <div class="card mb-3" style="border-radius: .5rem;">
@@ -100,7 +100,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
@@ -111,11 +110,24 @@
             itemsBackground : [ ],
             currentlySelectedPropic: "",
             currentlySelectedBanner: "",
+            currentlySelectedBackground: "",
 
             async init() {
+
+                let propic_url;
+                let banner_url;
+                let background_url;
+                propic_url = "https://picsum.photos/id/101/200/300";
+                banner_url = "https://picsum.photos/id/100/1200/300";
+                background_url = "https://picsum.photos/id/100/1200/300";
+                this.currentlySelectedPropic = propic_url;
+                this.currentlySelectedBanner = banner_url;
+                this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
+
                 if (!window.contract) {
                     await ethEnabled();
                 }
+
 
                 const itemHashes = await contract.methods.getUserProfileItems().call();
 
@@ -161,27 +173,35 @@
 
                 <%= if @user.custom_propic do %>
 
-                let url1;
                 try {
-                    url1 = (this.itemsPropic.find(e => e.asciiAddress == "<%= @user.custom_propic %>")).url;
+                    propic_url = (this.itemsPropic.find(e => e.asciiAddress == "<%= @user.custom_propic %>")).url;
                 } catch (error) {
-                    url1 = "https://picsum.photos/100/200/300";
+                    propic_url = "https://picsum.photos/id/101/200/300";
                 }
 
-                this.currentlySelectedPropic = url1;
+                this.currentlySelectedPropic = propic_url;
                 <% end %>
 
                 <%= if @user.custom_banner do %>
 
-                let url2;
                 try {
-                    url2 = (this.itemsBanner.find(e => e.asciiAddress == "<%= @user.custom_banner %>")).url;
+                    banner_url = (this.itemsBanner.find(e => e.asciiAddress == "<%= @user.custom_banner %>")).url;
                 } catch (error) {
-                    url2 = "https://picsum.photos/id/100/1200/300";
+                    banner_url = "https://picsum.photos/id/100/1200/300";
                 }
-                this.currentlySelectedBanner = url2;
+                this.currentlySelectedBanner = banner_url;
                 <% end %>
 
+
+                <%= if @user.custom_bg_color do %>
+
+                try {
+                    background_url = (this.itemsBackground.find(e => e.asciiAddress == "<%= @user.custom_bg_color %>")).url;
+                } catch (error) {
+                    background_url = "https://picsum.photos/id/100/1200/300";
+                }
+                this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
+                <% end %>
 
 
             }
