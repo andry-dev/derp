@@ -1,49 +1,60 @@
-<div class="container-fluid py-5">
+<div class="container-fluid py-5" x-data="itemData">
     <div class="row d-flex align-items-center h-100">
         <div class="col col-lg-12 mb-4 mb-lg-0">
         <div class="card mb-3" style="border-radius: .5rem;">
             <div class="row g-0">
-            <div class="col-md-4 gradient-custom text-center"
-                style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem;">
-                <img id="avatar" src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
-                alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
-                <h5> <%= @user.username %> </h5>
-                <p>ETH token enthusiast </p>
-
-                <!-- Button trigger modal -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tempAddModal">
-                    Customize profile
-                </button>
-
-            </div>
-            <div class="col-md-8">
-                <div class="card-body p-4">
-                <h6>Information</h6>
-                <hr class="mt-0 mb-4">
-                <div class="row pt-1">
-                    <div class="col-6 mb-3">
-                    <h6>Email</h6>
-                        <%= @user.email %>
-                    </div>
-                    <div class="col-6 mb-3">
-                    <h6>Phone</h6>
-                    <p class="text-muted">123 456 789</p>
-                    </div>
-                </div>
-                <h6>Reviews</h6>
-                <hr class="mt-0 mb-4">
-                <div class="row pt-1">
-                    <div class="col-6 mb-3">
-                    <h6>Recent</h6>
-                    <p class="text-muted">Lorem ipsum</p>
-                    </div>
-                    <div class="col-6 mb-3">
-                    <h6>Most Upvoted</h6>
-                    <p class="text-muted">Dolor sit amet</p>
-                    </div>
-                </div>
+                <div class="col col-sm-12 mt-5">
+                    <p class="text-center h2"> Welcome to <%=@current_user.username %>'s profile </p>
                 </div>
             </div>
+            <div class="row g-0">
+                <div class="col col-sm-12">
+                    <img id="banner" x-bind:src="currentlySelectedBanner"
+                    alt="banner" class="img-fluid my-5" style="width: 100%;" />
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col-md-4 gradient-custom text-center"
+                    style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; border-top-right-radius: .5rem;">
+                    <img id="avatar" x-bind:src="currentlySelectedPropic"
+                    alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                    <h5> <%= @user.username %> </h5>
+                    <p>ETH token enthusiast </p>
+
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#tempAddModal">
+                        Customize profile
+                    </button>
+
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body p-4">
+                    <h6>Information</h6>
+                    <hr class="mt-0 mb-4">
+                    <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                        <h6>Email</h6>
+                            <%= @user.email %>
+                        </div>
+                        <div class="col-6 mb-3">
+                        <h6>Phone</h6>
+                        <p class="text-muted">123 456 789</p>
+                        </div>
+                    </div>
+                    <h6>Reviews</h6>
+                    <hr class="mt-0 mb-4">
+                    <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                        <h6>Recent</h6>
+                        <p class="text-muted">Lorem ipsum</p>
+                        </div>
+                        <div class="col-6 mb-3">
+                        <h6>Most Upvoted</h6>
+                        <p class="text-muted">Dolor sit amet</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </div>
         </div>
         </div>
@@ -58,7 +69,7 @@
                 </div>
                 <div class="modal-body">
                     <.form class="form" for={@changeset} action={Routes.profile_path(@conn, :update)}>
-                        <div class="mb-3" x-data="itemData">
+                        <div class="mb-3">
 
                             <p> Use the right name to select the aspect you wish to apply </p>
 
@@ -98,6 +109,8 @@
             itemsPropic: [ ],
             itemsBanner: [ ],
             itemsBackground : [ ],
+            currentlySelectedPropic: "",
+            currentlySelectedBanner: "",
 
             async init() {
                 if (!window.contract) {
@@ -105,10 +118,6 @@
                 }
 
                 const itemHashes = await contract.methods.getUserProfileItems().call();
-
-                this.itemsPropic = [];
-                this.itemsBanner = [];
-                this.itemsBackground = [];
 
                 for (i = 0; i < itemHashes.length; i++) {
 
@@ -127,50 +136,56 @@
                     const json_data = JSON.parse(data);
 
                     if(json_data.type == "BG"){
-                        this.itemsPropic.push({
-                            name: json_data.name,
-                            asciiAddress: asciiAddress,
-                        })
-                    }
-                    else if (json_data.type == "PI"){
-                        this.itemsBanner.push({
-                            name: json_data.name,
-                            asciiAddress: asciiAddress,
-                        });
-                    } else {
                         this.itemsBackground.push({
                             name: json_data.name,
                             asciiAddress: asciiAddress,
+                            url: json_data.url
+                        })
+                    }
+                    else if (json_data.type == "PI"){
+                        this.itemsPropic.push({
+                            name: json_data.name,
+                            asciiAddress: asciiAddress,
+                            url: json_data.url
+                        });
+                    } else {
+                        this.itemsBanner.push({
+                            name: json_data.name,
+                            asciiAddress: asciiAddress,
+                            url: json_data.url
                         });
                     }
 
                 }
 
+
+                <%= if @user.custom_propic do %>
+
+                let url1;
+                try {
+                    url1 = (this.itemsPropic.find(e => e.asciiAddress == "<%= @user.custom_propic %>")).url;
+                } catch (error) {
+                    url1 = "https://picsum.photos/100/200/300";
+                }
+
+                this.currentlySelectedPropic = url1;
+                <% end %>
+
+                <%= if @user.custom_banner do %>
+
+                let url2;
+                try {
+                    url2 = (this.itemsBanner.find(e => e.asciiAddress == "<%= @user.custom_banner %>")).url;
+                } catch (error) {
+                    url2 = "https://picsum.photos/id/100/1200/300";
+                }
+                this.currentlySelectedBanner = url2;
+                <% end %>
+
+
+
             }
         }))
-
-        <%= if @user.custom_propic do %>
-        async function update_current_profile() {
-          let current_propic = "<%= @user.custom_propic %>";
-
-          const stream = await ipfs.cat(current_propic);
-
-          const decoder = new TextDecoder()
-          let data = ''
-
-          for await (const chunk of stream) {
-              // chunks of data are returned as a Uint8Array, convert it back to a string
-              data += decoder.decode(chunk, { stream: true })
-          }
-
-          const json_data = JSON.parse(data);
-          console.log(json_data);
-          document.querySelectorAll("#avatar")[0].src = json_data.url;
-
-        }
-
-        update_current_profile();
-        <% end %>
     });
 
 </script>
