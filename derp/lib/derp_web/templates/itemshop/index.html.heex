@@ -19,7 +19,7 @@
         <template x-for="item in items">
             <div class="col-sm-4">
                 <div class="card mb-4">
-                    <div class="card-body h-50">
+                    <div class="card-body h-25">
                         <img class="card-img-top" x-bind:src="item.aspect" alt="Card image cap">
                         <h5 class="card-title" x-text="item.name"></h5>
                         <p class="card-text" x-text="item.desc"></p>
@@ -61,8 +61,13 @@
                         <input type="text" class="form-control" id="itemPrice" x-model="formData.price" aria-describedby="itemPrice">
                     </div>
                     <div class="mb-3">
-                        <label for="itemType" class="form-label">Item type</label>
-                        <input type="text" class="form-control" id="itemType" x-model="formData.type" aria-describedby="itemType">
+                        <p> Item type </p>
+                        <input type="radio" id="bg" name="type1" x-model="formData.type" value="BG">
+                        <label for="bg"> Background </label><br>
+                        <input type="radio" id="pi" name="type2" x-model="formData.type" value="PI">
+                        <label for="pi"> Profile Image</label><br>
+                        <input type="radio" id="bn" name="type3" x-model="formData.type" value="BN">
+                        <label for="bn"> Banner</label>
                     </div>
                     <div class="mb-3">
                         <label for="itemAspect" class="form-label">Item aspect</label>
@@ -87,14 +92,16 @@
         Alpine.data('itemData', () => ({
             items: [ ],
 
+            async init() {
+                await this.refresh();
+            },
+
             async refresh() {
                 if (!window.contract) {
                     await ethEnabled();
                 }
 
                 const itemHashes = await contract.methods.getBuyableProfileItems().call();
-
-                this.items = [];
 
                 for (i = 0; i < itemHashes.length; i++) {
 
@@ -122,16 +129,10 @@
                     });
 
                 }
-
             }
+
         }))
     });
-</script>
-
-<script>
-  window.addEventListener('load', function(){
-    document.getElementById("refreshItems").click();
-  });
 </script>
 
 <script>
