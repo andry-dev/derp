@@ -68,7 +68,7 @@ const ethEnabled = async () => {
     window.contract = new window.web3.eth.Contract(contractAbi);
     window.contract.options.from = window.ethereum.selectedAddress;
     window.contract.options.address =
-      "0x98E62cF73fE06a4fDb02f6993C2827D3e5350457";
+      "0xe91f4c5D68e952A9ce7b26358435B2EBCF2Df013";
 
     return true;
   }
