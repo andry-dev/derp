@@ -57,15 +57,17 @@
         Alpine.data('reviewData', () => ({
             reviews: [ ],
 
+            async init() {
+              await this.refresh();
+            },
+
             async refresh() {
               if (!window.contract) {
                 await ethEnabled();
               }
 
-              const reviewHashes = await contract.methods.getReviews().send();
+              const reviewHashes = await contract.methods.getReviews().call();
               //console.log(reviewHashes)
-
-              this.reviews = [];
 
               for (i = 0; i < reviewHashes.length; i++) {
 
@@ -95,10 +97,4 @@
             }
         }))
     })
-</script>
-
-<script>
-  window.addEventListener('load', function(){
-    document.getElementById("refreshReviews").click();
-  });
 </script>
