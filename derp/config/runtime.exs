@@ -20,6 +20,15 @@ if System.get_env("PHX_SERVER") do
   config :derp, DerpWeb.Endpoint, server: true
 end
 
+
+contract_info =
+  Path.expand("../assets/js/Derp-info.json", __DIR__)
+  |> File.read!()
+  |> Jason.decode!()
+
+config :derp,
+  contract_address: contract_info["address"]
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||

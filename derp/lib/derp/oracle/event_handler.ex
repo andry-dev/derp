@@ -49,39 +49,13 @@ defmodule Derp.Oracle.EventHandler do
       Logger.info("Got ReviewToken request!\n\t #{inspect(changes)}")
 
       Enum.map(changes, fn c ->
-        address = Map.get(c, "address")
-        product = Map.get(c, "data") |> Map.get("product")
+        address = c["address"]
+        product = c["data"]["product"]
 
         Logger.info("Refreshing review tokens for #{address}")
 
-        case Derp.Oracle.refresh_reviews_for_user(address, product) do
-          {:ok, bought?} -> {:ok, address, product, bought?}
-          error -> error
-        end
+        Derp.Oracle.refresh_reviews_for_user(address, product)
       end)
-      |> Enum.each(fn
-        {:ok, address, product, true} -> reward_review_token(address, product)
-        {:ok, address, product, false} -> Logger.info("Product #{product} not bought by #{address}.")
-      end)
-    end
-
-    defp reward_review_token(address, product) do
-      options = %{
-        #from: Application.fetch_env!(:derp, :server_address, Enum.at(ExW3.accounts, 0)),
-
-        from: Enum.at(ExW3.accounts, 0),
-        gas: 100_000
-      }
-
-      {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
-
-      {store_id, local_product_id} = Derp.Oracle.decode_product_id(product)
-
-      case ExW3.Contract.send(:Derp, :rewardReviewToken, [int_address, product], options) do
-        {:ok, result} ->
-          Logger.info("Rewarded user #{address} for product #{product} (#{store_id}, #{local_product_id})")
-          {:ok, result}
-      end
     end
   end
 

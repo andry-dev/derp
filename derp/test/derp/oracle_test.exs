@@ -58,4 +58,58 @@ defmodule Derp.OracleTest do
       assert %Ecto.Changeset{} = Oracle.change_review_request(review_request)
     end
   end
+
+  describe "product_refresh_requests" do
+    alias Derp.Oracle.ProductRefreshRequest
+
+    import Derp.OracleFixtures
+
+    @invalid_attrs %{address: nil}
+
+    test "list_product_refresh_requests/0 returns all product_refresh_requests" do
+      product_refresh_request = product_refresh_request_fixture()
+      assert Oracle.list_product_refresh_requests() == [product_refresh_request]
+    end
+
+    test "get_product_refresh_request!/1 returns the product_refresh_request with given id" do
+      product_refresh_request = product_refresh_request_fixture()
+      assert Oracle.get_product_refresh_request!(product_refresh_request.id) == product_refresh_request
+    end
+
+    test "create_product_refresh_request/1 with valid data creates a product_refresh_request" do
+      valid_attrs = %{address: "some address"}
+
+      assert {:ok, %ProductRefreshRequest{} = product_refresh_request} = Oracle.create_product_refresh_request(valid_attrs)
+      assert product_refresh_request.address == "some address"
+    end
+
+    test "create_product_refresh_request/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Oracle.create_product_refresh_request(@invalid_attrs)
+    end
+
+    test "update_product_refresh_request/2 with valid data updates the product_refresh_request" do
+      product_refresh_request = product_refresh_request_fixture()
+      update_attrs = %{address: "some updated address"}
+
+      assert {:ok, %ProductRefreshRequest{} = product_refresh_request} = Oracle.update_product_refresh_request(product_refresh_request, update_attrs)
+      assert product_refresh_request.address == "some updated address"
+    end
+
+    test "update_product_refresh_request/2 with invalid data returns error changeset" do
+      product_refresh_request = product_refresh_request_fixture()
+      assert {:error, %Ecto.Changeset{}} = Oracle.update_product_refresh_request(product_refresh_request, @invalid_attrs)
+      assert product_refresh_request == Oracle.get_product_refresh_request!(product_refresh_request.id)
+    end
+
+    test "delete_product_refresh_request/1 deletes the product_refresh_request" do
+      product_refresh_request = product_refresh_request_fixture()
+      assert {:ok, %ProductRefreshRequest{}} = Oracle.delete_product_refresh_request(product_refresh_request)
+      assert_raise Ecto.NoResultsError, fn -> Oracle.get_product_refresh_request!(product_refresh_request.id) end
+    end
+
+    test "change_product_refresh_request/1 returns a product_refresh_request changeset" do
+      product_refresh_request = product_refresh_request_fixture()
+      assert %Ecto.Changeset{} = Oracle.change_product_refresh_request(product_refresh_request)
+    end
+  end
 end

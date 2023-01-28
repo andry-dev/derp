@@ -30,7 +30,8 @@ defmodule DerpWeb.Router do
   scope "/api", DerpWeb do
     pipe_through :api
 
-    resources "/review_requests", ReviewRequestController, only: [:create]
+    post "/review_token_request", ReviewRequestController, :create
+    post "/product_refresh_request", ProductRefreshRequestController, :create
   end
 
   # Enables LiveDashboard only for development
