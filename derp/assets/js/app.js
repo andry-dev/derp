@@ -31,6 +31,7 @@ import Alpine from "alpinejs";
 window.Alpine = Alpine;
 
 import contractAbi from "./Derp-abi.json";
+import contractInfo from "./Derp-info.json";
 
 import { create } from "ipfs-http-client";
 
@@ -67,8 +68,7 @@ const ethEnabled = async () => {
     window.web3 = new Web3(window.ethereum);
     window.contract = new window.web3.eth.Contract(contractAbi);
     window.contract.options.from = window.ethereum.selectedAddress;
-    window.contract.options.address =
-      "0xe91f4c5D68e952A9ce7b26358435B2EBCF2Df013";
+    window.contract.options.address = contractInfo.address;
 
     return true;
   }
@@ -77,4 +77,3 @@ const ethEnabled = async () => {
 
 window.ethEnabled = ethEnabled;
 Alpine.start();
-

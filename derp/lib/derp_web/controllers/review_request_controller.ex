@@ -12,11 +12,24 @@ defmodule DerpWeb.ReviewRequestController do
   end
 
   def create(conn, %{"review_request" => review_request_params}) do
-    with {:ok, %ReviewRequest{} = review_request} <- Oracle.create_review_request(review_request_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.review_request_path(conn, :show, review_request))
-      |> render("show.json", review_request: review_request)
+    case Oracle.create_review_request(review_request_params) do
+      {:ok, true} ->
+        conn
+        |> put_status(:created)
+        # |> put_resp_header("location", Routes.review_request_path(conn, :show, review_request))
+        |> render("show.json", review_request: true)
+      {:ok, false} ->
+        conn
+        |> put_status(:not_acceptable)
+        |> render("show.json", review_request: false)
+      {:error, :review_token_already_requested} ->
+        conn
+        |> put_status(:payment_required)
+        |> render("error.json", review_request: false)
+      {:error, reason} ->
+        conn
+        |> put_status(:not_acceptable)
+        |> render("error.json", reason: reason)
     end
   end
 

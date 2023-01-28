@@ -18,4 +18,18 @@ defmodule Derp.OracleFixtures do
 
     review_request
   end
+
+  @doc """
+  Generate a product_refresh_request.
+  """
+  def product_refresh_request_fixture(attrs \\ %{}) do
+    {:ok, product_refresh_request} =
+      attrs
+      |> Enum.into(%{
+        address: "some address"
+      })
+      |> Derp.Oracle.create_product_refresh_request()
+
+    product_refresh_request
+  end
 end

@@ -10,12 +10,28 @@ defmodule Mix.Tasks.Derp.Update do
 
   @impl Mix.Task
   def run(_args) do
-    extractedAbi = File.read!("../smart_contract/build/contracts/Derp.json")
-    |> JSON.decode!() 
-    |> Map.get("abi")
-    |> JSON.encode!
+    smart_contract_dir = "../smart_contract"
+
+    contract =
+      File.read!(smart_contract_dir <> "/build/contracts/Derp.json")
+      |> Jason.decode!()
+
+    first_network = 
+      contract["networks"]
+      |> Map.keys()
+      |> Enum.at(0)
+
+    network_info =
+      contract["networks"][first_network]
+
+    extractedAbi = 
+      contract
+      |> Map.get("abi")
+      |> Jason.encode!
 
     File.write!("assets/js/Derp-abi.json", extractedAbi)
+
+    File.write!("assets/js/Derp-info.json", Jason.encode!(network_info))
     IO.puts("Saved new contract!")
   end
 end
