@@ -24094,21 +24094,12 @@
     "5777": {
       "events": {},
       "links": {},
-<<<<<<< HEAD
-      "address": "0xe91f4c5D68e952A9ce7b26358435B2EBCF2Df013",
-      "transactionHash": "0x1d2200f192234cce90c94ff5e413a8b6366afe327dc6d57442707cca7f6e4d8e"
-    }
-  },
-  "schemaVersion": "3.4.11",
-  "updatedAt": "2023-01-26T22:02:39.033Z",
-=======
       "address": "0xBCd9482f4Bb2A4bc346d43fd797DC044ee07DacD",
       "transactionHash": "0xb1cd0ddd51f6f6be412f3ba6b43dfd80cb1455c5d900f71861c7eb4854de1734"
     }
   },
   "schemaVersion": "3.4.11",
   "updatedAt": "2023-01-27T17:10:36.426Z",
->>>>>>> 5d27613 (Backend/Oracle: respond to review token requests)
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
