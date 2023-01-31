@@ -14,8 +14,8 @@ defmodule Derp.Oracle.EventHandler do
 
     children = [
       __MODULE__.ReviewTokenRequest,
-      # Derp.Oracle.AllReviewTokenRequest,
-      __MODULE__.RefreshProductRequest
+      __MODULE__.AllReviewTokenRequest,
+      # __MODULE__.RefreshProductRequest
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
@@ -62,6 +62,38 @@ defmodule Derp.Oracle.EventHandler do
 
   defmodule AllReviewTokenRequest do
     use Task, restart: :permanent
+
+    def start_link(_arg) do
+    {:ok, filter_id} = ExW3.Contract.filter(:Derp, "AllReviewTokensRequested")
+
+      state = [
+        filter_id: filter_id
+      ]
+
+      Task.start_link(__MODULE__, :run, [state])
+    end
+
+    def run(state) do
+      filter_id = state[:filter_id]
+      {:ok, changes} = ExW3.Contract.get_filter_changes(filter_id)
+      handle_changes(changes)
+      :timer.sleep(1000)
+      run(state)
+    end
+
+    def handle_changes([]) do
+    end
+
+    def handle_changes(changes) do
+      Enum.each(changes, fn c ->
+        address =
+          ExW3.Address.from_bytes(c["data"]["account"])
+          |> ExW3.Address.to_hex()
+          |> IO.inspect()
+
+        Derp.Oracle.refresh_reviews_for_user(address, [])
+      end)
+    end
   end
 
   defmodule RefreshProductRequest do

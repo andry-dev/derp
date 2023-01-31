@@ -114,12 +114,9 @@
 
             async init() {
 
-                let propic_url;
-                let banner_url;
-                let background_url;
-                propic_url = "https://picsum.photos/id/101/200/300";
-                banner_url = "https://picsum.photos/id/100/1200/300";
-                background_url = "https://picsum.photos/id/100/1200/300";
+                let propic_url = "https://picsum.photos/id/102/200/300";
+                let banner_url = "https://picsum.photos/id/103/1200/300";
+                let background_url = "https://picsum.photos/id/104/1200/300";
                 this.currentlySelectedPropic = propic_url;
                 this.currentlySelectedBanner = banner_url;
                 this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
@@ -172,35 +169,30 @@
 
 
                 <%= if @user.custom_propic do %>
-
                 try {
                     propic_url = (this.itemsPropic.find(e => e.asciiAddress == "<%= @user.custom_propic %>")).url;
+                    this.currentlySelectedPropic = propic_url;
                 } catch (error) {
-                    propic_url = "https://picsum.photos/id/101/200/300";
                 }
-
-                this.currentlySelectedPropic = propic_url;
                 <% end %>
 
                 <%= if @user.custom_banner do %>
-
                 try {
                     banner_url = (this.itemsBanner.find(e => e.asciiAddress == "<%= @user.custom_banner %>")).url;
+                    this.currentlySelectedBanner = banner_url;
                 } catch (error) {
-                    banner_url = "https://picsum.photos/id/100/1200/300";
+                    <!-- banner_url = "https://picsum.photos/id/100/1200/300"; -->
                 }
-                this.currentlySelectedBanner = banner_url;
                 <% end %>
 
 
                 <%= if @user.custom_bg_color do %>
-
                 try {
                     background_url = (this.itemsBackground.find(e => e.asciiAddress == "<%= @user.custom_bg_color %>")).url;
+                    this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
                 } catch (error) {
-                    background_url = "https://picsum.photos/id/100/1200/300";
+                    <!-- background_url = "https://picsum.photos/id/100/1200/300"; -->
                 }
-                this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
                 <% end %>
 
 

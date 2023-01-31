@@ -88,7 +88,7 @@ contract Derp {
     int8 public constant PER_PURCHASE_TOKENS = 10;
 
     modifier onlyOwner() {
-        require(msg.sender == owner);
+        require(msg.sender == owner, "You are not the owner!");
         _;
     }
 
@@ -114,6 +114,16 @@ contract Derp {
         external
         onlyOwner
     {
+        if (!products[productId]._initialized) {
+            Product memory p = Product({
+                _initialized: true,
+                reviewHashes: new bytes[](0)
+            });
+
+            registeredProducts.push(productId);
+            products[productId] = p;
+        }
+
         if (productsClaimed[account][productId] == ProductState.UNCLAIMED) {
             productsClaimed[account][productId] = ProductState.CLAIMED;
             reviewTokens[account] += PER_PURCHASE_TOKENS;
@@ -127,11 +137,19 @@ contract Derp {
         onlyOwner
     {
         for (uint256 i = 0; i < productIds.length; ++i) {
-            if (
-                productsClaimed[account][productIds[i]] ==
-                ProductState.UNCLAIMED
-            ) {
-                productsClaimed[account][productIds[i]] = ProductState.CLAIMED;
+            uint64 pId = productIds[i];
+            if (!products[pId]._initialized) {
+                Product memory p = Product({
+                    _initialized: true,
+                    reviewHashes: new bytes[](0)
+                });
+
+                registeredProducts.push(pId);
+                products[pId] = p;
+            }
+
+            if (productsClaimed[account][pId] == ProductState.UNCLAIMED) {
+                productsClaimed[account][pId] = ProductState.CLAIMED;
                 reviewTokens[account] += PER_PURCHASE_TOKENS;
 
                 emit ReviewTokensGranted(account);
@@ -226,10 +244,8 @@ contract Derp {
     }
 
     //This function allows to register new NFTS for the profile
-    //TODO: It can be called only by the server 
-    function addProfileItem(bytes calldata itemHash, int64 price)
-        external
-    {
+    //TODO: It can be called only by the server
+    function addProfileItem(bytes calldata itemHash, int64 price) external {
         //itemHash is the hash of the css from ipfs
         profileItems.push(itemHash);
         //We also update the price in the mapping
@@ -258,6 +274,54 @@ contract Derp {
         return registeredProducts;
     }
 
+    function getProductsToBeReviewed() public view returns (uint64[] memory) {
+        uint256 maxProducts = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[msg.sender][pId] == ProductState.CLAIMED) {
+                ++maxProducts;
+            }
+        }
+
+        uint64[] memory ret = new uint64[](maxProducts);
+        uint256 retIdx = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[msg.sender][pId] == ProductState.CLAIMED) {
+                ret[retIdx] = pId;
+                ++retIdx;
+            }
+        }
+
+        return ret;
+    }
+
+    function getClaimedProductsFromAccount(address account)
+        public
+        view
+        returns (uint64[] memory)
+    {
+        uint256 maxProducts = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[account][pId] == ProductState.CLAIMED) {
+                ++maxProducts;
+            }
+        }
+
+        uint64[] memory ret = new uint64[](maxProducts);
+        uint256 retIdx = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[account][pId] == ProductState.CLAIMED) {
+                ret[retIdx] = pId;
+                ++retIdx;
+            }
+        }
+
+        return ret;
+    }
+
     function getReviewTokens() public view returns (int64) {
         return reviewTokens[msg.sender];
     }
@@ -278,7 +342,7 @@ contract Derp {
         return profileItems;
     }
 
-    function getUserProfileItems() public view returns (bytes[] memory){
+    function getUserProfileItems() public view returns (bytes[] memory) {
         return userProfileItems[msg.sender];
     }
 }

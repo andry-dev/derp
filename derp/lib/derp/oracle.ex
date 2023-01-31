@@ -60,7 +60,7 @@ defmodule Derp.Oracle do
   Creates a review_request.
 
   ## Examples
-iex> create_review_request(%{field: value})
+  iex> create_review_request(%{field: value})
       {:ok, %ReviewRequest{}}
 
       iex> create_review_request(%{field: bad_value})
@@ -72,8 +72,6 @@ iex> create_review_request(%{field: value})
       %ReviewRequest{}
       |> ReviewRequest.create_changeset(attrs)
 
-    IO.inspect(changeset)
-
     address = changeset.changes.address
     products = changeset.changes.products || []
 
@@ -84,9 +82,10 @@ iex> create_review_request(%{field: value})
         {:ok, true} ->
           Repo.insert_or_update(changeset)
           {:ok, true}
-        error -> error
-      end
 
+        error ->
+          error
+      end
     end
   end
 
@@ -137,52 +136,68 @@ iex> create_review_request(%{field: value})
     ReviewRequest.changeset(review_request, attrs)
   end
 
-  @stores [%{url: "http://localhost:8080"}]
-
-
   def decode_product_id(product) do
-    store_id = (product &&& (0xFFFFFFFF <<< 32)) >>> 32
+    store_id = (product &&& 0xFFFFFFFF <<< 32) >>> 32
     product_id = product &&& 0xFFFFFFFF
 
     {store_id, product_id}
   end
 
   def encode_product_id(store, product) do
-    (store <<< 32) ||| product
+    store <<< 32 ||| product
   end
 
   # Request all tokens for all products
-  def refresh_reviews_for_user(_address, []), do: false
-
-  # Request just one
-  def refresh_reviews_for_user(address, products) when is_list(products) do
-    Enum.each(products, fn p ->
-      {store_id, product_id} = decode_product_id(p)
-
-      user_bought_product?(address, Enum.at(@stores, store_id), product_id)
-    end)
-  end
-
-  def refresh_reviews_for_user(address, product) do
-      {store_id, product_id} = decode_product_id(product)
-
-    case user_bought_product?(address, store_id, product_id) do
-        {:ok, true} ->
-            Derp.Oracle.reward_review_tokens(address, product)
-        {:ok, false} ->
-          {:ok, false}
-        error -> error
+  def refresh_reviews_for_user(address, []) do
+    Logger.info("Refreshing tokens for #{address}...")
+    case check_new_bought_products(address) do
+      [] -> {:ok, false}
+      products when is_list(products) ->
+        IO.inspect(products)
+        Derp.Oracle.reward_review_tokens(address, products)
     end
   end
 
-  defp user_bought_product?(address, 1, product) do
-    Logger.info("Trying to check if #{address} bought #{product} for store 1...")
+  # Request just one
+  def refresh_reviews_for_user(address, products) when is_list(products) do
+    res = Enum.map(products, fn p ->
+      refresh_reviews_for_user(address, p)
+    end)
+    |> Enum.all?(fn {:ok, res} -> res
+      {:error, _reason} -> false
+    end)
+
+    if res do
+      {:ok, true}
+    else
+      {:error, "User didn't buy product"}
+    end
+    
+  end
+
+  def refresh_reviews_for_user(address, product) do
+    {store_id, product_id} = decode_product_id(product)
+
+    case user_bought_product?(address, store_id, product_id) do
+      {:ok, true} ->
+        Derp.Oracle.reward_review_tokens(address, product)
+
+      {:ok, false} ->
+        {:ok, false}
+
+      error ->
+        error
+    end
+  end
+
+  defp user_bought_product?(address, 0, product) do
+    Logger.info("Trying to check if #{address} bought #{product} for store 0...")
 
     store_url = "localhost:8080/check/#{product}"
     headers = [{"Content-Type", "application/json"}]
 
     with {:ok, json} <- Jason.encode(%{address: address}),
-         {:ok, response}  <- HTTPoison.post(store_url, json, headers),
+         {:ok, response} <- HTTPoison.post(store_url, json, headers),
          {:ok, %{"bought" => result}} <- Jason.decode(response.body) do
       {:ok, result}
     else
@@ -194,23 +209,85 @@ iex> create_review_request(%{field: value})
     {:error, "Unknown store #{store}"}
   end
 
+  def check_new_bought_products(address) do
+    products =
+      get_bought_products_from_store(address, 0)
+      |> Enum.map(fn p -> 
+        (0 <<< 32) ||| p
+      end)
+
+    {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
+
+    {:ok, claimedProducts} = ExW3.Contract.call(:Derp, :getClaimedProductsFromAccount, [int_address])
+
+    products -- claimedProducts
+  end
+
+  defp get_bought_products_from_store(address, 0) do
+    Logger.info("Trying to check if #{address} bought new products...")
+
+    store_url = "localhost:8080/check"
+    headers = [{"Content-Type", "application/json"}]
+
+    with {:ok, json} <- Jason.encode(%{address: address}),
+         {:ok, response} <- HTTPoison.post(store_url, json, headers),
+         {:ok, %{"data" => result}} <- Jason.decode(response.body) do
+      result
+    else
+      error -> error
+    end 
+  end
+
+  defp get_bought_products_from_store(_address, _store), do: []
+
+  def reward_review_tokens(address, products) when is_list(products) do
+    Enum.each(products, fn p ->
+      reward_review_tokens(address, p)
+    end)
+
+    {:ok, true}
+
+    # TODO: Truffle doesn't like the fact that we iterate over an array inside the contract, so we take the pessimization and do N transactions for each product. This is not ideal because we pay too much and we should use the code below.
+
+    # options = %{
+    #   from: Enum.at(ExW3.accounts(), 0),
+    #   gas: 1_000_000
+    # }
+    #
+    # Logger.info("Trying to reward user for products #{inspect(products)}")
+    #
+    # {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
+    #
+    # case ExW3.Contract.send(:Derp, :rewardReviewTokens, [int_address, products, length(products)], options) do
+    #   {:ok, res} ->
+    #     Logger.info(
+    #       "Rewarded user #{address} for products #{inspect(products)}. Got #{res} from contract."
+    #     )
+    #
+    #     {:ok, true}
+    # end
+  end
+
   def reward_review_tokens(address, product) do
-      options = %{
-        #from: Application.fetch_env!(:derp, :server_address, Enum.at(ExW3.accounts, 0)),
+    options = %{
+      # from: Application.fetch_env!(:derp, :server_address, Enum.at(ExW3.accounts, 0)),
 
-        from: Enum.at(ExW3.accounts, 0),
-        gas: 100_000
-      }
+      from: Enum.at(ExW3.accounts(), 0),
+      gas: 1_000_000
+    }
 
-      {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
+    {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
 
-      {store_id, local_product_id} = Derp.Oracle.decode_product_id(product)
+    {store_id, local_product_id} = Derp.Oracle.decode_product_id(product)
 
-      case ExW3.Contract.send(:Derp, :rewardReviewToken, [int_address, product], options) do
-        {:ok, result} ->
-          Logger.info("Rewarded user #{address} for product #{product} (#{store_id}, #{local_product_id})")
-          {:ok, result}
-      end
+    case ExW3.Contract.send(:Derp, :rewardReviewToken, [int_address, product], options) do
+      {:ok, result} ->
+        Logger.info(
+          "Rewarded user #{address} for product #{product} (#{store_id}, #{local_product_id})"
+        )
+
+        {:ok, result}
+    end
   end
 
   alias Derp.Oracle.ProductRefreshRequest
@@ -311,7 +388,10 @@ iex> create_review_request(%{field: value})
       %Ecto.Changeset{data: %ProductRefreshRequest{}}
 
   """
-  def change_product_refresh_request(%ProductRefreshRequest{} = product_refresh_request, attrs \\ %{}) do
+  def change_product_refresh_request(
+        %ProductRefreshRequest{} = product_refresh_request,
+        attrs \\ %{}
+      ) do
     ProductRefreshRequest.changeset(product_refresh_request, attrs)
   end
 end

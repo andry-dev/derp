@@ -12,7 +12,15 @@
             <form class="form" x-data="reviewForm()" @submit.prevent="submitForm">
 
                 <!--hardcoded for now-->
-                <input type="hidden" value="1" x-model="formData.productNumber"/>
+
+                <label for="productId"> Product </label><br>
+                <div class="mb-3">
+                  <select class="form-select mt-4" id="productId" aria-label="Default select example" x-model="formData.productNumber">
+                    <template x-for="p in productsToReview">
+                      <option x-text="p.name" :value="p.id"></option>
+                    </template>
+                  </select>
+                </div>
 
                 <label for="reviewTitle"> Review Title </label>
                 <div class="input-group mb-3 mt-2">
@@ -45,20 +53,39 @@
     function reviewForm() {
         return {
             formData: {
-                productNumber: 1,
+                productNumber: 0,
                 reviewTitle: "",
                 reviewBody: ""
             },
+            productsToReview: [],
+
+            async init() {
+              if (!window.contract) {
+                await ethEnabled();
+              }
+
+              const myProducts = await contract.methods.getProductsToBeReviewed().call();
+              for (let i = 0; i < myProducts.length; ++i) {
+                const product = myProducts[i];
+                const localProductId = BigInt(product) & 0xFFFFFFFFn;
+                const storeId = BigInt(product) >> 32n;
+                this.productsToReview.push({
+                  name: `Shop ${storeId} - ${localProductId}`,
+                  id: product
+                });
+              }
+
+              this.formData.productNumber = myProducts[0];
+            },
+
             async submitForm() {
                 const response = await ipfs.add(JSON.stringify(this.formData));
                 const reviewHash = response.path;
 
                 //console.log(reviewHash, typeof(reviewHash));
-                productId = this.formData.productNumber;
+                const productId = this.formData.productNumber;
+                console.log(productId);
 
-                if (!window.contract) {
-                    await ethEnabled();
-                }
 
                 const bytes32ReviewHash = web3.utils.fromAscii(reviewHash);
                 await window.contract.methods.makeReview(productId, bytes32ReviewHash).send();

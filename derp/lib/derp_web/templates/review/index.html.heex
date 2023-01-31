@@ -1,5 +1,16 @@
 <div class="container-fluid" x-data="reviewData">
       <%= if @current_user do %>
+        <!-- <div class="row mt-4"> -->
+        <!---->
+        <!--     <div class="col col-sm-8"> -->
+        <!--       <h1>Products to be reviewed</h1> -->
+        <!--     </div> -->
+        <!---->
+        <!--     <div class="col col-sm-4"> -->
+        <!--       <button class="btn btn-primary" id="refresh" @click="refresh()">Refresh reviews</button> -->
+        <!--     </div> -->
+        <!-- </div> -->
+
         <div class="row mt-4">
 
             <div class="col col-sm-8">
@@ -42,6 +53,39 @@
               </table>
             </div>
         </div>
+          <div class="row mt-4">
+            <div class="col col-sm-8">
+              <h3>Products to review</h3>
+              <p>You still have to review the following products:</p>
+            </div>
+
+            <div class="col col-sm-4">
+              <button class="btn btn-danger" id="requestReviewTokens" @click="requestReviewTokens()">Refresh products</button>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col col-md-12">
+              <table class="table table-hover mt-3">
+                    <thead>
+                      <tr>
+                        <th>Store ID</th>
+                        <th>Local Product ID</th>
+                        <th>Name</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+
+                    <template x-for="p in productsToReview">
+                      <tr>
+                        <td x-text="p.store"></td>
+                        <td x-text="p.localId"></td>
+                        <td x-text="p.name"></td>
+                      </tr>
+                    </template>
+                    </tbody>
+              </table>
+            </div>
+          </div>
       <% else %>
         <div class="row mt-4">
             <div class="col col-md-12">
@@ -56,19 +100,35 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('reviewData', () => ({
             reviews: [ ],
+            productsToReview: [],
 
             async init() {
+              await ethEnabled();
               await this.refresh();
+              await this.refreshProducts();
+            },
+
+            async refreshProducts() {
+              const products = await contract.methods.getProductsToBeReviewed().call();
+
+              for (let i = 0; i < products.length; ++i) {
+                const storeId = BigInt(products[i]) >> 32n;
+                const localId = BigInt(products[i]) & 0xFFFFFFFFn;
+
+                this.productsToReview.push({
+                  store: storeId,
+                  localId: localId,
+                  name: "Sample name"
+                });
+              }
             },
 
             async refresh() {
-              if (!window.contract) {
-                await ethEnabled();
-              }
 
               const reviewHashes = await contract.methods.getReviews().call();
               //console.log(reviewHashes)
 
+              this.reviews.length = 0;
               for (i = 0; i < reviewHashes.length; i++) {
 
                 //console.log(reviewHashes[i])
@@ -92,6 +152,29 @@
                   body: json_data.reviewBody,
                   upvotes: 1,
                   downvotes: 0,
+                });
+              }
+            },
+
+            async requestReviewTokens() {
+              const response = await fetch('http://localhost:4000/api/review_token_request', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  address: (await web3.eth.getAccounts())[0],
+                  products: []
+                })
+              });
+
+              const responseData = (await response.json()).data;
+
+              if (!responseData.result) {
+                console.log(responseData.reason);
+
+                contract.methods.requestAllReviewTokens().send({
+                from: (await web3.eth.getAccounts())[0]
                 });
               }
             }

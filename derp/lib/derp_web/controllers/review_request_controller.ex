@@ -11,8 +11,9 @@ defmodule DerpWeb.ReviewRequestController do
     render(conn, "index.json", review_requests: review_requests)
   end
 
-  def create(conn, %{"review_request" => review_request_params}) do
-    case Oracle.create_review_request(review_request_params) do
+  def create(conn, params) do
+    IO.inspect(params)
+    case Oracle.create_review_request(params) do
       {:ok, true} ->
         conn
         |> put_status(:created)

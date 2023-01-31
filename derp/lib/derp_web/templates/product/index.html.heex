@@ -52,3 +52,19 @@
     <% end %>
   </div>
 </div>
+
+
+<script>
+
+document.addEventListener('alpine:init', () => {
+  Alpine.data('productsListData', () => {
+    products: [],
+
+    async init() {
+      await ethEnabled();
+    },
+
+
+  });
+});
+</script>
