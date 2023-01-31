@@ -19,7 +19,9 @@ module.exports = async function (deployer) {
 
   const products = [
     (0n << 32n) | 1n,
+    (0n << 32n) | 2n,
     (1n << 32n) | 1n,
+    (1n << 32n) | 2n,
   ];
 
   await contract.methods.addProducts(products).send({
@@ -33,6 +35,10 @@ module.exports = async function (deployer) {
 
   // JS needs BigInt for 64-bit integers
   await contract.methods.rewardReviewToken(reviewer, products[0]).send({
+    from: server,
+  });
+
+  await contract.methods.rewardReviewToken(reviewer, products[2]).send({
     from: server,
   });
 
@@ -55,7 +61,7 @@ module.exports = async function (deployer) {
   const buyableItems = await contract.methods.getBuyableProfileItems().call({
     from: server,
   });
-  console.log(buyableItems)
+  console.log(buyableItems);
 
   // const reviewHash = 0x1234;
   // //unless 1mln of gas is specified this fails

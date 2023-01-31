@@ -23,11 +23,30 @@ const transactions = [
     address: 0xbcd0bb18140a21ada3c9d7dd494c173e53a3640fn,
     product_id: 2,
   },
+  {
+    address: 0x56BBccE3e1B496915f32c5485448d110cd61249cn,
+    product_id: 5,
+  },
+  {
+    address: 0x3a1f0b9d86006d003887e86ecb9ca35d1ae42fcdn,
+    product_id: 3,
+  },
+  {
+    address: 0x3a1f0b9d86006d003887e86ecb9ca35d1ae42fcdn,
+    product_id: 10,
+  },
+  {
+    address: 0x3a1f0b9d86006d003887e86ecb9ca35d1ae42fcdn,
+    product_id: 6,
+  },
 ];
 
 const server_url = "http://localhost:8080";
 const productQueryRoute = new URLPattern({
   pathname: "/check/:product",
+});
+const addressQueryRoute = new URLPattern({
+  pathname: "/check",
 });
 
 console.log(transactions);
@@ -96,6 +115,26 @@ async function checkBoughtProduct(
   );
 }
 
+async function getAllBoughtProducts(
+  requestEvent: Deno.RequestEvent,
+) {
+  const reqBody = await requestEvent.request.json();
+
+  const body = {
+    data: transactions.filter((t) => {
+      return t.address === BigInt(reqBody.address);
+    }).map((t) => {
+      return t.product_id;
+    }),
+  };
+
+  return requestEvent.respondWith(
+    Response.json(body, {
+      status: 200,
+    }),
+  );
+}
+
 async function serveHttp(conn: Deno.Conn) {
   // This "upgrades" a network connection into an HTTP connection.
   const httpConn = Deno.serveHttp(conn);
@@ -104,10 +143,12 @@ async function serveHttp(conn: Deno.Conn) {
   for await (const requestEvent of httpConn) {
     console.log(requestEvent.request.url);
 
-    const match = productQueryRoute.exec(requestEvent.request.url);
+    let match = productQueryRoute.exec(requestEvent.request.url);
     if (match) {
       const groups = match.pathname.groups;
       checkBoughtProduct(requestEvent, Number(groups.product));
+    } else if ((match = addressQueryRoute.exec(requestEvent.request.url))) {
+      getAllBoughtProducts(requestEvent);
     } else if (requestEvent.request.url === server_url) {
       serveBoughtProducts(requestEvent);
     } else {
