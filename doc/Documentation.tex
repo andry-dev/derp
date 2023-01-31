@@ -1,43 +1,129 @@
-\documentclass{bc}
+\documentclass[12pt,a4paper,oneside]{article}
+\usepackage{titlepic}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[left=1.1in,right=1.1in, top=1in, bottom= 1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{etoolbox}
+\usepackage[nottoc]{tocbibind}
+\usepackage{appendix}
+\usepackage{multicol}
+\usepackage{leftidx}
+\graphicspath{{figures/}}
+\usepackage{ragged2e}
+\usepackage{mathtools}
+\usepackage{units}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{commath}
+\usepackage{comment}
 
-\addbibresource{refs.bib}
+\usepackage{amsthm}
+ 
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\newtheorem{theorem}{Theorem}
+
+\usepackage[none]{hyphenat} % Avoids to go out of margin
+
+\usepackage{subfiles}
+
+% --------------------------------------------- %
+
+\title{Derp}	                                    % Title
+\author{Author Name}				                % Authors separated by \\
+\date{\today}									    % Date
+
+% Font size of figure smaller than normal size:
+\usepackage{caption}
+\captionsetup[figure]{font=small}
+%\captionsetup[table]{font=small}
+
+%\usepackage{setspace} % double spacing
+\linespread{1.2}
+
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
 
 \begin{document}
 
-\author{Andrea Reale (2003188), Matteo Gioia ()}
-\title{DERP: \\ Decentralized Ethereum Review Platform}
-\date{}
-\maketitle{}
-
-\begin{abstract}
-	Fill this abstract.
-\end{abstract}
-
-\begin{center}
-	\textbf{Responsabilities}: Fill the responsabilities. Maybe use a table?
-\end{center}
-
+\include{title}
+\newpage
 \tableofcontents
 \newpage
 
 
+%glossary in latex
+%context: a context in phoenix is a module that is used to group related functionality.
+
+
 \section{Introduction}
 
+The rise of e-commerces revolutionized the way we buy and sell products. Before the creation of such platforms, there was no way to verify the quality of a product, as gathering feedback from previous customers was pretty much impossible.
+This issue became one of the main selling points of e-commerces, as they provided a way for users to share their experience with a product and for others to make an informed decision before buying it.
+However, the lack of a centralized authority to verify the authenticity of the reviews has led to the proliferation of fake reviews. For example, it is not uncommon for vendors to ask to leave fake reviews in exchange for money or a free product, or for users to leave negative feedbacks in order to boycott a specific vendor. On top of that, there is no way to verify whether the content of the review is what the original poster had actually written. \\
+The goal of D.E.R.P. is to address all of these challenges while building a platform that incentivizes its customers to leave honest reviews and interact with the website.
+
+\paragraph{Responsibilities} The development of the app (backend, frontend, smart contract) was carried on by all team members equally. However, there are a few key elements which were personally ideated/curated by a specific team member, as listed below:
+\begin{itemize}
+	\item Andrea Reale: oracle to check whether user has bought news product, docker setup
+	\item Matteo Gioia: documentation stub, slides
+\end{itemize}
+
+\paragraph{Outline of the report} This report is organized as follows:
+\begin{itemize}
+	\item The first section provides a brief overview of the background of the project, including a brief introduction to the blockchain technology and the e-commerce domain.
+	\item The second section describes the context of the DApp, including the main problems that we are trying to solve and the rationale behind the use of a blockchain.
+	\item The third section describes the architecture of the DApp, including the functional requirements, the use-case diagrams, the sequence diagrams, the backend, the frontend and the smart contract.
+	\item The fourth section describes the implementation details of the DApp, including visual examples.
+	\item The fifth section describes the known issues of the DApp.
+	\item The last section provides a conclusion of the project.
+\end{itemize}
+
+\section{Background}
 % Blockchain: history, rationale, concepts...
+
+
+\subsection{E-commerce}
 % Application domain
+
+
+\section{Context of the D-App}
 % Aim of the DApp
-\subsection{Why a public permission-less blockchain?}
-% Why using a blockchain, and what type thereof to use in production
+The goal of D.E.R.P. is to solve the problem of fake reviews on e-commerce platforms. The main idea is to use a blockchain to store the reviews and verify their authenticity. Other features will include the possibility to interact with the reviews and customize the user profile. A full list of the features is available in the requirements section. \\
+The main problems that we tackle are:
+\begin{itemize}  
+	\item Authenticity: the hash of the review should be stored on-chain, so that it's authenticity can be verified.
+	\item Boycotting: users shouldn't be able to boycott a product by leaving fake reviews.
+	\item Over the counter scams: vendors shouldn't be able to bribe users to leave fake reviews.
+	\item Self promoting: vendors shouldn't be able to buy/generate reviews through fake accounts.
+\end{itemize}
+
+We also want to provide a place for users to customize their profile, such as a personal page. This will increase the engagement of the users and will incentivize them to keep interacting with the platform. \\
+Ideally, this platform should solve entirely the problem of fake reviews, however we are aware that this is not possible unless other requirements are met. For an extensive list of know issues, please refer to the appropriate section. 
+
+\subsection{Why using a blockchain?}
+
+
+\newpage
 
 \section{Architecture}
+
+This section is dedicated to discussing the architectural details of the DApp. In particular, we will discuss the functional requirements, the use-case diagrams, the sequence diagrams, the backend, the frontend and the smart contract. 
 
 % Talk about the backend + frontend from Phoenix, then the shop server API
 % Maybe also the docker containers?
 
 % We should also talk about what we are actually storing on-chain and what off-chain
-
-\subsection{Requirements}
-
+\subsection{Functional Requirements}
 % Probably we also want to talk about the functional and non-functional requirements
 % This can probably be moved in the introduction, after stating the problem we're solving
 
@@ -49,16 +135,59 @@
 
 \subsection{Sequence diagrams}
 
-\subsection{General overview}
+\subsection{Backend}
 
-% Component diagram here?
-% Also the ER scheme here?
+The backend of D.E.R.P. is fully written in Elixir, using the Phoenix framework. It is responsible for scaffolding (handling authentication) and for saving part of the user information, since most of the data we use is on-chain (as we need proof of its authenticity). 
 
-\subsection{Token lifecycle}
+Before creating the backend, we had to decide how to structure the project. We came up with following ER diagram and used it to decide the main entities and the context of each one.
 
-\section{Implementation details}
+\begin{figure}
+    \centering
+    \includegraphics{}
+    \caption{Caption}
+    \label{fig:my_label}
+\end{figure}
+
+To keep things organized, we created 4 contexts: 
+\begin{itemize}
+	\item \textbf{Accounts}: procedures related to user authentication.
+	\item \textbf{Catalogue}: procedures related to stores/products.
+	\item \textbf{Reviews}: procedures related to reviews.
+	\item \textbf{Oracle}: procedures related to the oracle.
+\end{itemize}
+
+The contexts for Accounts, Catalogue and Reviews handle the usual CRUD operations (which weren't really needed as we fetch data from chain).
+The context for the Oracle is the most complex, as it has to spawn 2 subprocesses that listen for events from the contract and it allows us to grant review tokens to the users that request them after buying a product from the shop. The 2 subprocesses are handled by elixir and will respawn on their own if they crash. 
+
+\paragraph{Why use a backend at all?} A case could be made that the backend is not really needed, as we could just use the smart contract to store all the data. However we do not need to verify the authenticity of all of the information used in the website (we mentioned user settings or preferences), as storing it on the chain would increase the price of the contract without any real benefit. Furthermore, having a solid backend is a good choice for future development, as it gives the possibility to expand the website in the future. \\ 
+
+\subsection{Frontend}
+
+ The fronted for D.E.R.P. uses the Phoenix framework to render each webpage. To provide a better interaction, we also used Alpine.js  to handle events or refreshes and to fill data that was fetched from the contract or IPFS. We interacted with the smart contract through web3.js whenever a user had to make a transaction. For what regards the UI, we created a really basic design using bootstrap 5.  \\
+
+\subsection{Smart contract}
+
+
+
+\section{Implementation details} %TO MOVE
+
+This section is dedicated to discussing the implementation details of the DApp. We will describe the technology stack used in the project and provide visual examples of what using D.E.R.P. is like. Note that there is also a standalone shop server (written in NodeJS) that simulates the interaction with the e-commerce platform. This is not part of the DApp, but it is used to test the interaction between the DApp and the e-commerce platform.
+
+\paragraph{Technology stack} The technology stack used in the project is the following:
+\begin{itemize}
+	\item \textbf{Backend}: Phoenix (Elixir framework), PostgreSQL (Database)
+	\item \textbf{Frontend}: Phoenix, Javascript, Bootstrap5, Web3.js (interaction with smart contract), Alpine.js (dynamic frontend)
+	\item \textbf{Smart contract}: Solidity, Truffle Suite, IPFS
+	\item \textbf{Tooling}: Docker, Git
+\end{itemize}
+
+The backend is written in Elixir and the CRUD were autogenerated with the help of the Phoenix framework. The frontend is also written in Phoenix and Javascript, and the interactions with the smart contract are handled with Web3.js. The smart contract is written in Solidity and it is deployed on a local node of the Ethereum blockchain, simulated with Truffle. \\
+For what regards the tooling, we created 4 containers: one for the shop server, one for truffle, one for IPFS and one for PostgreSQL. Github was used for managing the code and the project.
+For an extensive list of the libraries used in the project and for a quick startup guide, please refer to the github repository that can be found at this link \url{among.us}.
 
 \subsection{Images}
+
+In this section we show some screenshots of the key functionalities offered by D.E.R.P.
 
 \section{Known issues}
 
@@ -68,7 +197,8 @@
 \section{Conclusion}
 
 \newpage
-\printbibliography
+%\printbibliography
 
 
 \end{document}
+
