@@ -76,4 +76,36 @@ const ethEnabled = async () => {
 };
 
 window.ethEnabled = ethEnabled;
+window.queryProductInfo = async function (store, localProductId) {
+  switch (Number(store)) {
+    case 0: {
+      const response = await fetch(
+        `http://localhost:8080/info/${localProductId}`,
+      );
+      const respJson = await response.json();
+      console.log(respJson);
+
+      return respJson.data;
+    }
+    default:
+      return { name: "", url: "" };
+  }
+};
+
+window.catFromIpfs = async function (cid) {
+  const asciiAddress = web3.utils.hexToAscii(cid);
+  //console.log(asciiAddress)
+  const stream = await ipfs.cat(asciiAddress);
+
+  const decoder = new TextDecoder();
+  let data = "";
+
+  for await (const chunk of stream) {
+    // chunks of data are returned as a Uint8Array, convert it back to a string
+    data += decoder.decode(chunk, { stream: true });
+  }
+
+  return data;
+};
+
 Alpine.start();

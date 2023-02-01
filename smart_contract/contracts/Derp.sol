@@ -195,8 +195,12 @@ contract Derp {
 
     function upvoteReview(bytes calldata reviewHash) external {
         Review storage review = reviews[reviewHash];
-        require(review._initialized);
-        require(reviewTokens[msg.sender] >= UPVOTE_COST);
+        require(review._initialized, "Review doesn't exist");
+        require(
+            reviewTokens[msg.sender] >= UPVOTE_COST,
+            "Not enough review tokens"
+        );
+        require(review.reviewer != msg.sender, "Can't upvote it's own review");
 
         reviewTokens[msg.sender] -= UPVOTE_COST;
 
@@ -328,6 +332,14 @@ contract Derp {
 
     function getProfileTokens() public view returns (int64) {
         return profileTokens[msg.sender];
+    }
+
+    function getReview(bytes calldata hash)
+        public
+        view
+        returns (Review memory)
+    {
+        return reviews[hash];
     }
 
     function getReviews() public view returns (bytes[] memory) {

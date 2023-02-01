@@ -1,23 +1,113 @@
+<div x-data='productShow'>
 <h1>Show Product</h1>
 
 <ul>
 
   <li>
-    <strong>Name:</strong>
-    <%= @product.name %>
+    <strong>Name:</strong> <p x-text="product.name || '<Unknown>'"></p>
+  </li>
+
+  <li>
+    <a :href="product.url">Store URL</a>
   </li>
 
   <li>
     <strong>Id:</strong>
-    <%= @product.id %>
-  </li>
-
-  <li>
-    <strong>Local:</strong>
-    <%= @product.local_id %>
+    <%= @product.id %> (from store <%= @product.store_id %>, product <%= @product.local_id %>)
   </li>
 
 </ul>
 
-<span><%= link "Edit", to: Routes.product_path(@conn, :edit, @product) %></span> |
-<span><%= link "Back", to: Routes.product_path(@conn, :index) %></span>
+<h2 class="mb-3 mt-5">Reviews</h2>
+
+<p x-show="reviews.length == 0">There are no reviews at the moment! Be the first to make one.</p>
+
+  <template x-for="(review, idx) in reviews">
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <h3 class="card-title col col-sm-8" x-text="review.title"></h3>
+            <div class="row col col-sm-4 align-items-center">
+              <span class="col-sm-8">Upvotes: <span x-text="review.upvotes"></span></span>
+            <span class="d-inline-block col-sm-4" tabindex="0" data-toggle="tooltip" :title="areWeTheReviewer(review.hash) ? 'Can\'t upvote your own review!' : 'Click here to upvote review' ">
+              <button :disabled="areWeTheReviewer(review.hash)"  @click="upvote(review.hash)" class="btn btn-primary">Upvote</button>
+              </span>
+            </div>
+          </div>
+            <p class="card-text ">From: <span x-text="review.reviewer"></span></p>
+          <p class="card-text" x-text="review.body"></p>
+        </div>
+      </div>
+    <hr class="mb-3" x-show="idx < (reviews.length - 1)"/>
+  </template>
+</div>
+
+
+<script>
+window.addEventListener('alpine:init', () => {
+  Alpine.data('productShow', () => ({
+    product: {
+      id: <%= @product.id %>,
+      localId: <%= @product.local_id %>,
+      storeId: <%= @product.store_id %>,
+      name: '',
+      url: '',
+    },
+
+    reviews: [],
+
+    async init() {
+      await ethEnabled();
+
+      const productInfo = await queryProductInfo(this.product.storeId, this.product.localId);
+
+      this.product.name = productInfo.name;
+      this.product.url = productInfo.url;
+
+      const reviewHashes = (await contract.methods.getProduct(this.product.id).call()).reviewHashes;
+      console.log(reviewHashes);
+
+      for (const reviewHash of reviewHashes) {
+        const reviewInfoOnChain = await contract.methods.getReview(reviewHash).call();
+        const review = JSON.parse(await catFromIpfs(reviewHash));
+        this.reviews.push({
+          title: review.reviewTitle,
+          body: review.reviewBody,
+          reviewer: reviewInfoOnChain.reviewer,
+          upvotes: reviewInfoOnChain.upvotes,
+          hash: reviewHash,
+        });
+      }
+    },
+
+    async refresh(hash) {
+        const reviewInfoOnChain = await contract.methods.getReview(hash).call();
+        const review = JSON.parse(await catFromIpfs(hash));
+        for (let i = 0; i < this.reviews.length; ++i) {
+          if (this.reviews[i].hash === hash) {
+            this.reviews[i].title = review.reviewTitle;
+            this.reviews[i].body = review.reviewBody;
+            this.reviews[i].reviewer = reviewInfoOnChain.reviewer;
+            this.reviews[i].upvotes = reviewInfoOnChain.upvotes;
+
+            break;
+          }
+        }
+    },
+
+    async upvote(hash) {
+      await contract.methods.upvoteReview(hash).send();
+      this.refresh(hash);
+    },
+
+    async areWeTheReviewer(hash) {
+      const ourAccount = (await web3.eth.getAccounts())[0];
+      const res = this.reviews.filter(r =>
+        r.hash === hash && r.reviewer === ourAccount
+      );
+
+      return res.length > 0;
+    }
+  }));
+});
+</script>

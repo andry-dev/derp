@@ -1,5 +1,28 @@
 const server = Deno.listen({ port: 8080 });
 
+const products = [
+  {
+    id: 1,
+    name: "Frigobar",
+  },
+  {
+    id: 2,
+    name: "Pineapple Speed",
+  },
+  {
+    id: 3,
+    name: "Imposter (sus)",
+  },
+  {
+    id: 4,
+    name: "MPS",
+  },
+  {
+    id: 6,
+    name: "ETH is a Token",
+  },
+];
+
 const transactions = [
   {
     address: 0x1234,
@@ -48,7 +71,11 @@ const productQueryRoute = new URLPattern({
 const addressQueryRoute = new URLPattern({
   pathname: "/check",
 });
+const productInfoRoute = new URLPattern({
+  pathname: "/info/:product",
+});
 
+console.log(products);
 console.log(transactions);
 
 for await (const conn of server) {
@@ -135,6 +162,35 @@ async function getAllBoughtProducts(
   );
 }
 
+function getProductInfo(
+  requestEvent: Deno.RequestEvent,
+  productId: number,
+) {
+  const product = products.filter((p) => {
+    return p.id === productId;
+  });
+
+  let data = {};
+
+  if (product.length > 0) {
+    const p = product[0];
+    data = {
+      name: p.name,
+      url: `http://localhost:8080/p/${p.id}`,
+    };
+  }
+
+  const body = {
+    data: data,
+  };
+
+  return requestEvent.respondWith(
+    Response.json(body, {
+      status: 200,
+    }),
+  );
+}
+
 async function serveHttp(conn: Deno.Conn) {
   // This "upgrades" a network connection into an HTTP connection.
   const httpConn = Deno.serveHttp(conn);
@@ -149,6 +205,8 @@ async function serveHttp(conn: Deno.Conn) {
       checkBoughtProduct(requestEvent, Number(groups.product));
     } else if ((match = addressQueryRoute.exec(requestEvent.request.url))) {
       getAllBoughtProducts(requestEvent);
+    } else if ((match = productInfoRoute.exec(requestEvent.request.url))) {
+      getProductInfo(requestEvent, Number(match.pathname.groups.product));
     } else if (requestEvent.request.url === server_url) {
       serveBoughtProducts(requestEvent);
     } else {
