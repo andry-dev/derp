@@ -1,19 +1,19 @@
-<div class="container-fluid" x-data="productData">
+<div class="container-fluid" x-data="productListData">
   <div class="row mt-4">
 
     <div class="col col-sm-8">
-      <p class="h1">Broswe Products</p>
+      <p class="h1">Browse Products</p>
     </div>
 
-    <%= if @current_user do %>
-      <div class="col col-sm-2">
-        <button class="btn btn-primary mt-2" id="refreshProduct" @click="refresh()">Refresh products</button>
-      </div>
-
-      <div class="col col-sm-2">
-        <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div>
-      </div>
-    <% end %>
+    <!-- <%= if @current_user do %> -->
+    <!--   <div class="col col-sm-2"> -->
+    <!--     <button class="btn btn-primary mt-2" id="refreshProduct" @click="refresh()">Refresh products</button> -->
+    <!--   </div> -->
+    <!---->
+    <!--   <div class="col col-sm-2"> -->
+    <!--     <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div> -->
+    <!--   </div> -->
+    <!-- <% end %> -->
   </div>
 
   <div class="row">
@@ -22,26 +22,22 @@
         <table class="table table-hover mt-3">
           <thead>
             <tr>
-              <th>Product photo</th>
               <th>Product name</th>
-              <th>Purchase date</th>
+              <!-- <th>Purchase date</th> -->
               <th>Product store</th>
-              <th>Link to product (?)</th>
+              <th>Local product ID</th>
+              <th>Link to product</th>
             </tr>
           </thead>
           <tbody>
-
-          <!--
-          <template x-for="review in reviews">
-            <tr>
-              <td x-text="review.product_id"></td>
-              <td x-text="review.title"></td>
-              <td x-text="review.body"></td>
-              <td x-text="review.upvotes"></td>
-              <td x-text="review.downvotes"></td>
-            </tr>
-          </template>
-          -->
+            <template x-for="p in products">
+              <tr>
+                <td><a :href="`/products/${p.id}`" x-text="p.name"></a></td>
+                <td x-text="p.storeId"></td>
+                <td x-text="p.localId"></td>
+                <td><a :href="p.url">Store link</a></td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -55,16 +51,32 @@
 
 
 <script>
-
 document.addEventListener('alpine:init', () => {
-  Alpine.data('productsListData', () => {
+  Alpine.data('productListData', () => ({
     products: [],
 
     async init() {
       await ethEnabled();
+
+      const products = await contract.methods.getProducts().call();
+
+      for (let i = 0; i < products.length; ++i) {
+        const product = products[i];
+        const storeId = BigInt(product) >> 32n;
+        const localId = BigInt(product) & 0xFFFFFFFFn;
+
+        const respJson = await queryProductInfo(storeId, localId);
+        this.products.push({
+          id: product,
+          name: respJson.name || '<Unknown>',
+          localId: localId,
+          storeId: storeId,
+          url: respJson.url,
+        })
+      }
     },
 
 
-  });
+  }));
 });
 </script>

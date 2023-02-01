@@ -71,6 +71,7 @@
                         <th>Store ID</th>
                         <th>Local Product ID</th>
                         <th>Name</th>
+                        <th>URL</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -80,6 +81,7 @@
                         <td x-text="p.store"></td>
                         <td x-text="p.localId"></td>
                         <td x-text="p.name"></td>
+                        <td><a :href="p.url" x-text="p.url"></a></td>
                       </tr>
                     </template>
                     </tbody>
@@ -115,10 +117,13 @@
                 const storeId = BigInt(products[i]) >> 32n;
                 const localId = BigInt(products[i]) & 0xFFFFFFFFn;
 
+                const productInfo = await queryProductInfo(storeId, localId);
+
                 this.productsToReview.push({
                   store: storeId,
                   localId: localId,
-                  name: "Sample name"
+                  name: productInfo.name || "<Unknown>",
+                  url: productInfo.url || "",
                 });
               }
             },

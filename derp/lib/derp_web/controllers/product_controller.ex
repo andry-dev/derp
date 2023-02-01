@@ -27,7 +27,13 @@ defmodule DerpWeb.ProductController do
   end
 
   def show(conn, %{"id" => id}) do
-    product = Catalogue.get_product!(id)
+    {id, _} = Integer.parse(id)
+    {storeId, localProductId} = Derp.Oracle.decode_product_id(id)
+    product = %Derp.Catalogue.Product{
+      id: id,
+      store_id: storeId,
+      local_id: localProductId
+    }
     render(conn, "show.html", product: product)
   end
 
