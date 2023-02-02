@@ -2,7 +2,13 @@
   <li class="nav-item"><%= link "Products", class: "nav-link", to: Routes.product_path(@conn, :index) %></li>
   <li class="nav-item"><%= link "Shop", class: "nav-link", to: Routes.itemshop_path(@conn, :index) %></li>
 </ul>
-<ul class="navbar-nav">
+<%= if @current_user do %>
+<div x-data="profileInfo">
+    <span class="navbar-text text-info" x-text="`RT${reviewTokens}`"></span>
+    <span class="navbar-text text-info" x-text="`PT${profileTokens}`"></span>
+</div>
+<% end %>
+<ul class="navbar-nav" >
 <%= if @current_user do %>
   <li class="nav-item dropdown mt-1">
     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -28,3 +34,22 @@
 <% end %>
   <li class="nav-item mt-1"><button class="btn btn-primary" onclick="ethEnabled()">Connect wallet</button></li>
 </ul>
+
+<script>
+window.addEventListener('alpine:init', () => {
+  Alpine.data('profileInfo', () => ({
+    reviewTokens: 0,
+    profileTokens: 0,
+
+    async init() {
+      await ethEnabled();
+
+      this.reviewTokens = await contract.methods.getReviewTokens().call();
+      this.profileToksn = await contract.methods.getProfileTokens().call();
+
+      console.log(this.reviewTokens);
+
+    }
+  }));
+})
+</script>

@@ -151,10 +151,11 @@ defmodule Derp.Oracle do
   def refresh_reviews_for_user(address, []) do
     Logger.info("Refreshing tokens for #{address}...")
     case check_new_bought_products(address) do
-      [] -> {:ok, false}
+      [] -> {:error, :no_new_products}
       products when is_list(products) ->
         IO.inspect(products)
         Derp.Oracle.reward_review_tokens(address, products)
+      _error -> {:error, :no_new_products}
     end
   end
 

@@ -11,8 +11,6 @@
 
             <form class="form" x-data="reviewForm()" @submit.prevent="submitForm">
 
-                <!--hardcoded for now-->
-
                 <label for="productId"> Product </label><br>
                 <div class="mb-3">
                   <select class="form-select mt-4" id="productId" aria-label="Default select example" x-model="formData.productNumber">
@@ -69,8 +67,11 @@
                 const product = myProducts[i];
                 const localProductId = BigInt(product) & 0xFFFFFFFFn;
                 const storeId = BigInt(product) >> 32n;
+
+                const productInfo = await queryProductInfo(storeId, localProductId);
+
                 this.productsToReview.push({
-                  name: `Shop ${storeId} - ${localProductId}`,
+                  name: `${productInfo.name} (Shop ${storeId} - ${localProductId})`,
                   id: product
                 });
               }

@@ -10,12 +10,16 @@ defmodule DerpWeb.ReviewRequestView do
     %{data: %{result: result}}
   end
 
-  def render("error.json", %{review_request: false}) do
-    %{data: %{result: false, reason: "Reviewer already spent the daily free review token request"}}
+  def render("error.json", %{reason: :review_token_already_requested}) do
+    %{data: %{result: false, code: 0, reason: "Reviewer already spent the daily free review token request"}}
+  end
+
+  def render("error.json", %{reason: :no_new_products}) do
+    %{data: %{result: false, code: 1, reason: "No new products!"}}
   end
 
   def render("error.json", %{reason: reason}) do
-    %{data: %{result: false, reason: reason}}
+    %{data: %{result: false, code: 2, reason: reason}}
   end
 
   def render("review_request.json", %{review_request: review_request}) do

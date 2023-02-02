@@ -3,6 +3,8 @@ defmodule Derp.Application do
   # for more information on OTP Applications
   @moduledoc false
 
+  alias MyspaceIPFS
+
   use Application
 
   # contract :Derp, contract_address: "", abi_path: ""

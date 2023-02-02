@@ -4,20 +4,9 @@
     <div class="col col-sm-8">
       <p class="h1">Browse Products</p>
     </div>
-
-    <!-- <%= if @current_user do %> -->
-    <!--   <div class="col col-sm-2"> -->
-    <!--     <button class="btn btn-primary mt-2" id="refreshProduct" @click="refresh()">Refresh products</button> -->
-    <!--   </div> -->
-    <!---->
-    <!--   <div class="col col-sm-2"> -->
-    <!--     <div class='text text-danger'> Warning: you will be charged for refreshes successive to the first one!</div> -->
-    <!--   </div> -->
-    <!-- <% end %> -->
   </div>
 
   <div class="row">
-    <%= if @current_user do %>
       <div class="col col-md-12">
         <table class="table table-hover mt-3">
           <thead>
@@ -41,11 +30,6 @@
           </tbody>
         </table>
       </div>
-    <% else %>
-      <div class="col col-md-12">
-        <p class="h3">You are not logged in. Please log in to see your products.</p>
-      </div>
-    <% end %>
   </div>
 </div>
 

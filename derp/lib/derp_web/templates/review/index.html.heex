@@ -53,14 +53,18 @@
               </table>
             </div>
         </div>
-          <div class="row mt-4">
+          <div class="row mt-4 align-items-center">
             <div class="col col-sm-8">
               <h3>Products to review</h3>
               <p>You still have to review the following products:</p>
             </div>
 
-            <div class="col col-sm-4">
+            <div class="col col-sm-2">
               <button class="btn btn-danger" id="requestReviewTokens" @click="requestReviewTokens()">Refresh products</button>
+            </div>
+            <div class="col col-sm-2">
+              <p x-show="refreshAlreadyRequested">Free daily refresh already requested! You will pay the next ones.</p>
+              <p x-show="noNewProducts">No new products!</p>
             </div>
           </div>
           <div class="row mt-4">
@@ -103,6 +107,8 @@
         Alpine.data('reviewData', () => ({
             reviews: [ ],
             productsToReview: [],
+            refreshAlreadyRequested: false,
+            noNewProducts: false,
 
             async init() {
               await ethEnabled();
@@ -156,7 +162,6 @@
                   title: json_data.reviewTitle,
                   body: json_data.reviewBody,
                   upvotes: 1,
-                  downvotes: 0,
                 });
               }
             },
@@ -174,13 +179,22 @@
               });
 
               const responseData = (await response.json()).data;
+              console.log(responseData);
 
-              if (!responseData.result) {
+              if (!responseData.result && responseData.code == 0) {
                 console.log(responseData.reason);
+                this.refreshAlreadyRequested = true;
+                this.noNewProducts = false;
 
                 contract.methods.requestAllReviewTokens().send({
                 from: (await web3.eth.getAccounts())[0]
                 });
+              } else if (!responseData.result && responseData.code == 1) {
+                // No new products
+                this.noNewProducts = true;
+              } else {
+                this.refreshAlreadyRequested = true;
+                this.noNewProducts = false;
               }
             }
         }))
