@@ -26,7 +26,10 @@ defmodule DerpWeb.ReviewRequestController do
       {:error, :review_token_already_requested} ->
         conn
         |> put_status(:payment_required)
-        |> render("error.json", review_request: false)
+        |> render("error.json", reason: :review_token_already_requested)
+      {:error, :no_new_products} ->
+        conn
+        |> render("error.json", reason: :no_new_products)
       {:error, reason} ->
         conn
         |> put_status(:not_acceptable)

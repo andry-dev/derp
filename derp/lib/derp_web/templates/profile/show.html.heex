@@ -1,0 +1,100 @@
+<div class="container-fluid py-5" x-data="itemData" :style="currentlySelectedBackground">
+    <div class="row d-flex align-items-center h-100">
+        <div class="col col-lg-12 mb-4 mb-lg-0">
+        <div class="card mb-3" style="border-radius: .5rem;">
+            <div class="row g-0">
+                <div class="col col-sm-12 mt-5">
+                    <p class="text-center h2"> Welcome to <%=@current_user.username %>'s profile </p>
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col col-sm-12">
+                    <img id="banner" x-bind:src="currentlySelectedBanner"
+                    alt="banner" class="img-fluid my-5" style="width: 100%;" />
+                </div>
+            </div>
+            <div class="row g-0">
+                <div class="col-md-4 gradient-custom text-center"
+                    style="border-top-left-radius: .5rem; border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; border-top-right-radius: .5rem;">
+                    <img id="avatar" x-bind:src="currentlySelectedPropic"
+                    alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                    <h5> <%= @user.username %> </h5>
+                    <p>ETH token enthusiast </p>
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body p-4">
+                    <h6>Information</h6>
+                    <hr class="mt-0 mb-4">
+                    <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                        <h6>Email</h6>
+                            <%= @user.email %>
+                        </div>
+                        <div class="col-6 mb-3">
+                        <h6>Phone</h6>
+                        <p class="text-muted">123 456 789</p>
+                        </div>
+                    </div>
+                    <h6>Reviews</h6>
+                    <hr class="mt-0 mb-4">
+                    <div class="row pt-1">
+                        <div class="col-6 mb-3">
+                        <h6>Recent</h6>
+                        <p class="text-muted">Lorem ipsum</p>
+                        </div>
+                        <div class="col-6 mb-3">
+                        <h6>Most Upvoted</h6>
+                        <p class="text-muted">Dolor sit amet</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('itemData', () => ({
+            itemsPropic: [ ],
+            itemsBanner: [ ],
+            itemsBackground : [ ],
+            currentlySelectedPropic: "",
+            currentlySelectedBanner: "",
+            currentlySelectedBackground: "",
+
+            async init() {
+                await ethEnabled();
+
+                let propic_url =  "https://picsum.photos/id/102/200/300";
+                let banner_url = "https://picsum.photos/id/103/1200/300";
+                let background_url = "https://picsum.photos/id/104/1200/300";
+
+                <%= if @user.custom_propic do %>
+                const propic_hash = "<%= @user.custom_propic %>";
+                const propic_data = JSON.parse(await catFromIpfs(propic_hash, true));
+                propic_url = propic_data.url;
+                <% end %>
+
+                <%= if @user.custom_banner do %>
+                const banner_hash = "<%= @user.custom_banner %>";
+                const banner_data = JSON.parse(await catFromIpfs(banner_hash, true));
+                propic_url = banner_data.url;
+                <% end %>
+
+                <%= if @user.custom_bg_color do %>
+                const bg_hash = "<%= @user.custom_bg_color %>";
+                const bg_data = JSON.parse(await catFromIpfs(bg_hash, true));
+                propic_url = bg_data.url;
+                <% end %>
+
+                this.currentlySelectedPropic = propic_url;
+                this.currentlySelectedBanner = banner_url;
+                this.currentlySelectedBackground = "background-image: url(" + background_url + ");";
+            }
+        }))
+    });
+
+</script>

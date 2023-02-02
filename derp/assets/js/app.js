@@ -88,12 +88,17 @@ window.queryProductInfo = async function (store, localProductId) {
       return respJson.data;
     }
     default:
-      return { name: "", url: "" };
+      return { name: "<Unknown>", url: "" };
   }
 };
 
-window.catFromIpfs = async function (cid) {
-  const asciiAddress = web3.utils.hexToAscii(cid);
+window.catFromIpfs = async function (cid, convert = false) {
+  let asciiAddress = cid;
+
+  if (!convert) {
+    asciiAddress = web3.utils.hexToAscii(cid);
+  }
+
   //console.log(asciiAddress)
   const stream = await ipfs.cat(asciiAddress);
 

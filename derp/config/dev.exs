@@ -86,9 +86,13 @@ config :logger, :console, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 
 # Initialize plugs at runtime for faster development compilation
+
 config :phoenix, :plug_init_mode, :runtime
 
 config :ethereumex,
   client_type: :http,
   url: "http://localhost:9545"
 
+# config :myspace_ipfs,
+#   baseurl: "http://localhost:5001/api/v0",
+#   debug: false
