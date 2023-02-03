@@ -239,7 +239,7 @@ contract Derp {
 
     function buyProfileItem(bytes calldata itemHash) external {
         require(
-            profileTokens[msg.sender] > profileItemPrices[itemHash],
+            profileTokens[msg.sender] >= profileItemPrices[itemHash],
             "Not enough tokens"
         );
 
