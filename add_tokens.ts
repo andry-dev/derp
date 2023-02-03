@@ -18,10 +18,50 @@ const itemsToAdd = [
   {
     name: "Electric Creation",
     desc: "",
-    price: 0,
+    price: 1,
     type: "PI",
     url:
       "https://e-cdn-images.dzcdn.net/images/cover/883348e91d506211ab48d1faa8e20898/264x264-000000-80-0-0.jpg",
+  },
+  {
+    name: "Dank Boi",
+    desc: "",
+    price: 1000,
+    type: "PI",
+    url:
+      "https://i.kym-cdn.com/photos/images/newsfeed/000/813/182/1cc.png",
+  },
+  {
+    name: "Epic gamer",
+    desc: "",
+    price: 1,
+    type: "BG",
+    url:
+      "https://picsum.photos/id/690/1200/300",
+  },
+  {
+    name: "Imposter",
+    desc: "",
+    price: 1000,
+    type: "BG",
+    url:
+      "https://picsum.photos/id/420/1200/300",
+  },
+  {
+    name: "A cool guy",
+    desc: "",
+    price: 1,
+    type: "PI",
+    url:
+      "https://picsum.photos/id/700/1000/500",
+  },
+  {
+    name: "A really cool guy",
+    desc: "",
+    price: 1000,
+    type: "PI",
+    url:
+      "https://picsum.photos/id/800/1000/500",
   },
 ];
 
