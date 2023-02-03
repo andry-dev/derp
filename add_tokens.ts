@@ -28,40 +28,35 @@ const itemsToAdd = [
     desc: "",
     price: 1000,
     type: "PI",
-    url:
-      "https://i.kym-cdn.com/photos/images/newsfeed/000/813/182/1cc.png",
+    url: "https://i.kym-cdn.com/photos/images/newsfeed/000/813/182/1cc.png",
   },
   {
     name: "Epic gamer",
     desc: "",
     price: 1,
     type: "BG",
-    url:
-      "https://picsum.photos/id/690/1200/300",
+    url: "https://picsum.photos/id/690/1200/300",
   },
   {
     name: "Imposter",
     desc: "",
     price: 1000,
     type: "BG",
-    url:
-      "https://picsum.photos/id/420/1200/300",
+    url: "https://picsum.photos/id/420/1200/300",
   },
   {
     name: "A cool guy",
     desc: "",
     price: 1,
     type: "PI",
-    url:
-      "https://picsum.photos/id/700/1000/500",
+    url: "https://picsum.photos/id/700/1000/500",
   },
   {
     name: "A really cool guy",
     desc: "",
     price: 1000,
     type: "PI",
-    url:
-      "https://picsum.photos/id/800/1000/500",
+    url: "https://picsum.photos/id/800/1000/500",
   },
 ];
 

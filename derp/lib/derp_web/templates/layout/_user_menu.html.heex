@@ -45,7 +45,7 @@ window.addEventListener('alpine:init', () => {
       await ethEnabled();
 
       this.reviewTokens = await contract.methods.getReviewTokens().call();
-      this.profileToksn = await contract.methods.getProfileTokens().call();
+      this.profileTokens = await contract.methods.getProfileTokens().call();
 
       console.log(this.reviewTokens);
 
