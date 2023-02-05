@@ -3,6 +3,9 @@
 pragma solidity >=0.7.0 <0.9;
 
 contract Derp {
+    // "Unclaimed" is the default state for a product. When an user buys it and
+    // they request its review tokens then the product becomes Claimed.
+    // After making a review the product becomes Reviewed.
     enum ProductState {
         UNCLAIMED,
         CLAIMED,
@@ -34,8 +37,11 @@ contract Derp {
     // Used to check the authenticity of the reviews.
     address private owner;
 
-    // Mapping for the NFTs used on the website.
+    // The NFTs that allow the user to make reviews on the site and upvote other
+    // reviews.
     mapping(address => int64) private reviewTokens;
+
+    // Mapping for the profile NFTs used on the website.
     mapping(address => int64) private profileTokens;
 
     // Mapping from the uint64 product ID to the stored products.
@@ -74,10 +80,6 @@ contract Derp {
     event AllReviewTokensRequested(address account);
     event ReviewTokenRequested(address account, uint64 product);
     event ReviewTokensGranted(address account);
-
-    // Event emitted when an user wants to refresh the products for which they
-    // can create a review.
-    event ProductRefreshRequested();
 
     // Constants used by the contract
 

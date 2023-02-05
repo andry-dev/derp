@@ -37,6 +37,7 @@ derp/npm-debug.log
 derp/assets/node_modules/
 
 smart_contract/build
+smart_contract/node_modules
 
 # LaTeX files
 *.fls
@@ -52,3 +53,4 @@ smart_contract/build
 *.out
 *.fdb*
 *.toc
+doc/_minted*
