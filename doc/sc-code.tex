@@ -1,0 +1,229 @@
+Here we listed the most important parts of the smart contract:
+
+\begin{figure}[H]
+    \begin{minted}{solidity}
+contract Derp {
+    // "Unclaimed" is the default state for a product. When an user buys it and
+    // they request its review tokens then the product becomes Claimed.
+    // After making a review the product becomes Reviewed.
+    enum ProductState {
+        UNCLAIMED,
+        CLAIMED,
+        REVIEWED
+    }
+
+    // The product for which an user wants to make a review.
+    // This is indexed as a combination of the store ID and the product ID
+    // local to that store.
+    // "_initialized" is used for checking if a product exists.
+    //
+    // Example:
+    //    store ID = 1,
+    //    local product ID = 1,
+    //    product ID = 0x100000001
+    struct Product {
+        bytes[] reviewHashes;
+        bool _initialized;
+    }
+
+    function getClaimedProductsFromAccount(address account)
+        public
+        view
+        returns (uint64[] memory)
+    {
+        uint256 maxProducts = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[account][pId] == ProductState.CLAIMED) {
+                ++maxProducts;
+            }
+        }
+
+        uint64[] memory ret = new uint64[](maxProducts);
+        uint256 retIdx = 0;
+        for (uint256 i = 0; i < registeredProducts.length; ++i) {
+            uint64 pId = registeredProducts[i];
+            if (productsClaimed[account][pId] == ProductState.CLAIMED) {
+                ret[retIdx] = pId;
+                ++retIdx;
+            }
+        }
+
+        return ret;
+    }
+    \end{minted}
+    \label{code:sc-structs}
+    % \caption{The structs and enums used in the code for storing products and
+    % reviews. We use \texttt{\_initialized} for checking if something exists
+    % beforehand inside the various functions.
+    % The way the product ID is compressed is a way to reduce gas costs for
+    % searches.}
+\end{figure}
+
+% \begin{figure}[H]
+%     \begin{minted}{solidity}
+%     // The deployer of the contract.
+%     // Used to check the authenticity of the reviews.
+%     address private owner;
+%
+%     // Mapping from the uint64 product ID to the stored products.
+%     mapping(uint64 => Product) private products;
+%
+%     // Array used to retrieve all the products stored on-chain.
+%     uint64[] private registeredProducts;
+%
+%     // Mapping of the products actually claimed by an user.
+%     // Used to store on-chain the validity of the reviews.
+%     mapping(address => mapping(uint64 => ProductState)) private productsClaimed;
+%
+%     // The NFTs that allow the user to make reviews on the site and upvote other
+%     // reviews.
+%     mapping(address => int64) private reviewTokens;
+%
+%     // Mapping from the IPFS' Content Identifier of the review to the actual
+%     // review.
+%     mapping(bytes => Review) private reviews;
+%
+%     // Mapping used for retrieving the IPFS' CIDs of the reviews made by an
+%     // address.
+%     mapping(address => bytes[]) private reviewsFromAddress;
+%
+%     \end{minted}
+%     \label{code:sc-products-reviews-vars}
+%     \caption{Variables used for keeping track of the products, their state and
+%     the reviews made by the various users. The various mappings allow for
+%     faster searches inside the contract, reducing gas cost for function calls
+%     but trading it off with the initial deployment cost.}
+% \end{figure}
+
+% \begin{figure}[H]
+%     \begin{minted}{solidity}
+%     // Mapping for the profile NFTs used on the website.
+%     mapping(address => int64) private profileTokens;
+%
+%     // Array used to retrieve all the profile items stored on-chain
+%     // that can be bought with user tokens
+%     // This could be expanded in the future with a struct
+%     bytes[] private profileItems;
+%
+%     // Mapping with the price of profile items
+%     mapping(bytes => int64) private profileItemPrices;
+%
+%     // Mapping with a list of item profile purchased by a user
+%     mapping(address => bytes[]) private userProfileItems;
+%
+%     // Events emitted when an user wants to know if some review tokens can be
+%     // obtained because they bought a product.
+%     //
+%     // ReviewTokensGranted is emitted when the response is affirmative.
+%     event AllReviewTokensRequested(address account);
+%     event ReviewTokenRequested(address account, uint64 product);
+%     event ReviewTokensGranted(address account);
+%
+%     // Constants used by the contract
+%
+%     int8 public constant REVIEW_COST = 2;
+%     int8 public constant REVIEW_REWARD = 1;
+%     int8 public constant UPVOTE_COST = 2;
+%     int8 public constant UPVOTE_REWARD = 1;
+%     int8 public constant PER_PURCHASE_TOKENS = 10;
+%     \end{minted}
+%     \label{code:sc-profile-vars}
+%     \caption{Variables for the profile.}
+% \end{figure}
+
+
+\begin{figure}[H]
+    \begin{minted}{solidity}
+    function requestAllReviewTokens() external {
+        emit AllReviewTokensRequested(msg.sender);
+    }
+
+    function rewardReviewTokens(address account, uint64[] calldata productIds)
+        external
+        onlyOwner
+    {
+        for (uint256 i = 0; i < productIds.length; ++i) {
+            uint64 pId = productIds[i];
+            if (!products[pId]._initialized) {
+                Product memory p = Product({
+                    _initialized: true,
+                    reviewHashes: new bytes[](0)
+                });
+
+                registeredProducts.push(pId);
+                products[pId] = p;
+            }
+
+            if (productsClaimed[account][pId] == ProductState.UNCLAIMED) {
+                productsClaimed[account][pId] = ProductState.CLAIMED;
+                reviewTokens[account] += PER_PURCHASE_TOKENS;
+
+                emit ReviewTokensGranted(account);
+            }
+        }
+    }
+
+    function upvoteReview(bytes calldata reviewHash) external {
+        Review storage review = reviews[reviewHash];
+        require(review._initialized, "Review doesn't exist");
+        require(
+            reviewTokens[msg.sender] >= UPVOTE_COST,
+            "Not enough review tokens"
+        );
+        require(review.reviewer != msg.sender, "Can't upvote it's own review");
+
+        reviewTokens[msg.sender] -= UPVOTE_COST;
+
+        review.upvotes += 1;
+
+        profileTokens[review.reviewer] += UPVOTE_REWARD;
+    }
+    \end{minted}
+    \label{code:}
+    \caption{}
+\end{figure}
+
+
+\begin{figure}[H]
+    \begin{minted}{solidity}
+    // Reviewer is msg.sender
+    function makeReview(uint64 productId, bytes calldata reviewHash)
+        external
+        returns (bool)
+    {
+        require(reviewTokens[msg.sender] >= REVIEW_COST, "Not enough tokens");
+        require(!reviews[reviewHash]._initialized, "Review already exists");
+
+        // Stops the user from making reviews of products they have not claimed.
+        require(
+            productsClaimed[msg.sender][productId] == ProductState.CLAIMED,
+            "Product not claimed or already reviewed"
+        );
+
+        // Avoids creating a review for a product that doesn't exist.
+        require(products[productId]._initialized, "Product doesn't exist");
+
+        Review memory r = Review({
+            reviewer: msg.sender,
+            upvotes: 1,
+            _initialized: true
+        });
+
+        reviewsFromAddress[msg.sender].push(reviewHash);
+
+        reviews[reviewHash] = r;
+        products[productId].reviewHashes.push(reviewHash);
+
+        reviewTokens[msg.sender] -= REVIEW_COST;
+        profileTokens[msg.sender] += REVIEW_REWARD;
+
+        productsClaimed[msg.sender][productId] = ProductState.REVIEWED;
+
+        return true;
+    }
+    \end{minted}
+    \label{code:}
+    \caption{}
+\end{figure}
+

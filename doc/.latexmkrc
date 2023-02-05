@@ -1,3 +1,4 @@
 
 @default_files = ('Documentation.tex');
 $pdf_mode = 4;
+set_tex_cmds( '--shell-escape %O %S' );

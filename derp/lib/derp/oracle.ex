@@ -40,7 +40,7 @@ defmodule Derp.Oracle do
   """
   def get_review_request!(id), do: Repo.get!(ReviewRequest, id)
 
-  def should_we_pay_request?(table, address) do
+  def should_user_pay_request?(table, address) do
     now = DateTime.utc_now()
     day_start = %DateTime{now | hour: 0, minute: 0, second: 0}
     day_end = %DateTime{now | hour: 23, minute: 59, second: 59}
@@ -75,7 +75,7 @@ defmodule Derp.Oracle do
     address = changeset.changes.address
     products = changeset.changes.products || []
 
-    if should_we_pay_request?(ReviewRequest, address) do
+    if should_user_pay_request?(ReviewRequest, address) do
       {:error, :review_token_already_requested}
     else
       case refresh_reviews_for_user(address, products) do
@@ -173,7 +173,6 @@ defmodule Derp.Oracle do
     else
       {:error, "User didn't buy product"}
     end
-    
   end
 
   def refresh_reviews_for_user(address, product) do
@@ -339,7 +338,7 @@ defmodule Derp.Oracle do
       %ProductRefreshRequest{}
       |> ProductRefreshRequest.changeset(attrs)
 
-    if should_we_pay_request?(ProductRefreshRequest, changeset.changes.address) do
+    if should_user_pay_request?(ProductRefreshRequest, changeset.changes.address) do
       {:error, :product_refresh_already_requested}
     else
       Repo.insert_or_update(changeset)

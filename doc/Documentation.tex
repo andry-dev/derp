@@ -34,8 +34,28 @@
 \usepackage{subfiles}
 
 \usepackage{minted}
-\usemintedstyle{manni}
-\setminted{breaklines}
+\usemintedstyle{xcode}
+\setminted{breaklines,fontsize=\footnotesize,frame=single}
+
+\newcounter{freqcounter}
+\newcommand{\req}[1]{%
+	\textbf{FR\ref*{#1}}\refstepcounter{freqcounter}\label{#1}%
+}
+\newcommand{\reqref}[1]{%
+	\hyperref[#1]{[FR\ref*{#1}]}%
+}
+
+\newcounter{nfreqcounter}
+\newcommand{\nreq}[1]{%
+	\textbf{NFR\ref*{#1}}\refstepcounter{nfreqcounter}\label{#1}%
+}
+\newcommand{\nreqref}[1]{%
+	\hyperref[#1]{NFR\ref*{#1}}%
+}
+
+\newcommand{\ReqItemStyle}[1]{\textbf{#1}}
+\newcommand{\ReqItem}[2]{\item[\req{#1}] \ReqItemStyle{#2}}
+\newcommand{\NReqItem}[2]{\item[\nreq{#1}] \ReqItemStyle{#2}}
 
 % --------------------------------------------- %
 
@@ -102,7 +122,7 @@ The goal of D.E.R.P. is to address all of these challenges while building a plat
 % Aim of the DApp
 The goal of D.E.R.P. is to solve the problem of fake reviews on e-commerce platforms. The main idea is to use a blockchain to store the reviews and verify their authenticity. Other features will include the possibility to interact with the reviews and customize the user profile. A full list of the features is available in the requirements section. \\
 The main problems that we tackle are:
-\begin{itemize}  
+\begin{itemize}
 	\item Authenticity: the hash of the review should be stored on-chain, so that it's authenticity can be verified.
 	\item Boycotting: users shouldn't be able to boycott a product by leaving fake reviews.
 	\item Over the counter scams: vendors shouldn't be able to bribe users to leave fake reviews.
@@ -110,33 +130,99 @@ The main problems that we tackle are:
 \end{itemize}
 
 We also want to provide a place for users to customize their profile, such as a personal page. This will increase the engagement of the users and will incentivize them to keep interacting with the platform. \\
-Ideally, this platform should solve entirely the problem of fake reviews, however we are aware that this is not possible unless other requirements are met. For an extensive list of know issues, please refer to the appropriate section. 
+Ideally, this platform should solve entirely the problem of fake reviews, however we are aware that this is not possible unless other requirements are met. For an extensive list of know issues, please refer to the appropriate section.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=.49\linewidth]{figures/forbes-amazon.png}
+	\caption{Fake reviews are a serious problem for consumers and e-commerce sites. (Photo courtesy of Forbes.)}
+\end{figure}
 
 \subsection{Why using a blockchain?}
+We make use of the Ethereum network, which is a public permissionless blockchain. This decision was made because we don't trust neither the user, which makes reviews, nor the seller of a product: one or both of them may be trying to publish a fake review and we want to prevent that.
 
-\subsection{Functional Requirements}
+Another reason for building a dApp was the fact that we want to be independent from a trusted third party to host the reviews: it's not possible to know whether the reviews are being manipulated in some way, for example by hiding the bad ones, which defeats the purpose of such a platform. Since a blockchain by definition is immutable it's not possible to manipulate what gets published, even more so in a public permissionless one like Ethereum: each node knows the state of the chain after each transaction, including the reviews that are stored and their authors.
 
-In this section we define a list of functional requirements for D.E.R.P.
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.75\linewidth]{figures/should-use-blockhain.png}
+\end{figure}
+
+% https://nymag.com/intelligencer/2022/07/amazon-fake-reviews-can-they-be-stopped.html
+% https://www.forbes.com/sites/laurendebter/2022/12/12/scammers-are-flooding-amazon-with-fake-reviews-for-popular-holiday-gifts/
+%
+% An e-store, in fact, could intentionally hide/modify reviews!
+% A public permissionless blockchain is a good fit for these requirements.
+
+\subsection{Functional and Non-Functional Requirements}
+
+In this section we define a list of functional and non-functional requirements for D.E.R.P.
+
+\begin{itemize}
+	\ReqItem{req:profile}{A user should be able to make a profile on the website.}
+
+	In order to save their email, profile items and such, the user should register to the website.
+
+	\ReqItem{req:claim-rt}{A user should be able to claim review tokens for a product that they have bought previously.}
+
+	After buying a product from an external store, the user should be able to claim the right amount of review tokens for that product.
+
+	\ReqItem{req:make-review}{A user should be able to make a review for a product that they have bought previously.}
+
+	After buying a product from an external store, the user should see that product as available for reviewing and be able to review it.
+
+	\ReqItem{req:interact}{A user should be able to interact with other users' reviews.}
+
+	For example by seeing other reviews and upvoting them if they have enough review tokens.
+
+	\ReqItem{req:browse-products}{A user should be able to browse products on the website.}
+
+	The website should have a section that lists products that the contract knows about.
+
+	\ReqItem{req:buy-items}{A user should be able to buy profile items with profile tokens.}
+
+	\ReqItem{req:use-items}{A user should be able to apply profile items to customize their profile.}
+
+	It requires the backend to store which customizations are applied for which user (see \reqref{req:profile}).
+
+	\ReqItem{req:earn-pt}{A user should be able to earn profile tokens.}
+
+	Needed by \reqref{req:buy-items} and \reqref{req:use-items}.
+
+	\NReqItem{nreq:low-cost}{The operations made by the user should be cheap.}
+
+	To incentivize the users to interact with the platform, we want their experience to be as frictionless as possible. This includes paying the lowest possible amounts of gwei in order to perform the various operations (\reqref{req:claim-rt}, \reqref{req:make-review}, \reqref{req:interact}).
+	This implies that the platform operators should absorb some of the costs for interacting with the smart contract and reduce as much as possible the gas cost of the contract.
+
+	\NReqItem{nreq:security}{Prevent review fraud as much as possible.}
+
+	The reviews should be as truthful as possible: the cost of making a fake review should discourage malicious users.
+	This means providing review authenticity, prevent self promoting and defend against boycotting.
+	It should be noted that preventing over the counter scams is impossible without using any shop that implements protocols similar to the ones used in this project.
+\end{itemize}
 
 \subsection{Tech stack}
 
 The technology stack used in the project is the following:
 \begin{itemize}
 	\item \textbf{Backend}: Phoenix (Elixir framework), PostgreSQL (Database)
-	\item \textbf{Frontend}: Phoenix, Javascript, Bootstrap5, Web3.js (interaction with smart contract), Alpine.js (dynamic frontend)
+	\item \textbf{Frontend}: Phoenix, Javascript, Bootstrap 5, Web3.js (interaction with smart contract), Alpine.js (dynamic frontend)
 	\item \textbf{Smart contract}: Solidity, Truffle Suite, IPFS
 	\item \textbf{Tooling}: Docker, Git
 	\item \textbf{Fake shop}: Deno
 \end{itemize}
 
-The backend is written in Elixir and the CRUD were autogenerated with the help of the Phoenix framework. The frontend is also written in Phoenix and Javascript, and the interactions with the smart contract are handled with Web3.js. The smart contract is written in Solidity and it is deployed on a local node of the Ethereum blockchain, simulated with Truffle. \\
+The backend is written in Elixir and the CRUD were autogenerated with the help of the Phoenix framework. The frontend is also written in Phoenix and Javascript, and the interactions with the smart contract are handled with Web3.js. The smart contract is written in Solidity and it is deployed on a local node of the Ethereum blockchain, simulated with Truffle.
+
+To make the oracle code work, we expect external shops to implement a simple HTTP API for checking if an user bought a product. We simulate this in what we call the ``fake shop'' which has store identifier ``0''.
+
 For what regards the tooling, we created 4 containers: one for the shop server, one for truffle, one for IPFS and one for PostgreSQL. Github was used for managing the code and the project.
 For an extensive list of the libraries used in the project and for a quick startup guide, please refer to the github repository that can be found at this link \url{among.us}.
 
 \newpage
 \section{Architecture}
 
-This section is dedicated to discussing the architectural details of the DApp. In particular, we will discuss the use-case diagrams, the sequence diagrams, the backend, the frontend and the smart contract. 
+This section is dedicated to discussing the architectural details of the DApp. In particular, we will discuss the use-case diagrams, the sequence diagrams, the backend, the frontend and the smart contract.
 
 \subsection{Use-case diagrams}
 
@@ -153,23 +239,34 @@ In this section we show the main use case diagram of our app. Since the interact
 	\label{fig:use_case}
 \end{figure}
 
-\subsection{Sequence diagrams}
+
+\subsection{Component Diagram}
+
+The development of the project involved many technologies, that are shown in the following diagram.
+It's important to note that for local development we used Podman (Docker) containers for the database, fake shop, truffle and IPFS. This allowed us to work easily with them in a controller environment, without having to care about possible inconsistencies in the development machines.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\linewidth]{figures/component}
+	\caption{A basic component diagram of the various pieces of software involved in the project.}
+	\label{fig:component}
+\end{figure}
 
 
 \subsection{Backend}
 
-The backend of D.E.R.P. is fully written in Elixir, using the Phoenix framework. It is responsible for scaffolding (handling authentication) and for saving part of the user information, since most of the data we use is on-chain (as we need proof of its authenticity). 
+The backend of D.E.R.P. is fully written in Elixir, using the Phoenix framework. It is responsible for scaffolding (handling authentication) and for saving part of the user information, since most of the data we use is on-chain (as we need proof of its authenticity).
 
 Before creating the backend, we had to decide how to structure the project. We came up with following ER diagram and used it to decide the main entities and the context of each one.
 
 \begin{figure}[ht]
-    \centering
-    \includegraphics[scale=0.5]{figures/derp_er.drawio.png}
-    \caption{Caption}
-    \label{fig:my_label}
+	\centering
+	\includegraphics[width=0.6\linewidth]{figures/derp_er.drawio.png}
+	\caption{Entity-Relationship diagram for the backend}
+	\label{fig:er-diagram}
 \end{figure}
 
-To keep things organized, we created 4 contexts: 
+To keep things organized, we created 4 Elixir contexts:
 \begin{itemize}
 	\item \textbf{Accounts}: procedures related to user authentication.
 	\item \textbf{Catalogue}: procedures related to stores/products.
@@ -178,35 +275,325 @@ To keep things organized, we created 4 contexts:
 \end{itemize}
 
 The contexts for Accounts, Catalogue and Reviews handle the usual CRUD operations (which weren't really needed as we fetch data from chain).
-The context for the Oracle is the most complex, as it has to spawn 2 subprocesses that listen for events from the contract and it allows us to grant review tokens to the users that request them after buying a product from the shop. The 2 subprocesses are handled by elixir and will restart on their own if they crash. 
+The context for the Oracle is the most complex, as it has to spawn 2 subprocesses that listen for events from the contract and it allows us to grant review tokens to the users that request them after buying a product from the shop. The 2 subprocesses are handled by elixir and will restart on their own if they crash.
 
 Here we include the (significant parts of the) oracle code.
 
-\inputminted{Elixir}{event_handler.ex}
-\inputminted{Elixir}{oracle.ex}
+\begin{figure}[H]
+	\begin{minted}
+defmodule Derp.Oracle.EventHandler do
+  use Supervisor
 
-\paragraph{Why use a backend at all?} A case could be made that the backend is not really needed, as we could just use the smart contract to store all the data. However we do not need to verify the authenticity of all of the information used in the website (we mentioned user settings or preferences), and storing it on the chain would increase the price of the contract without any real benefit. Additionally, having a solid (pun intended) backend is a good choice for future development, as it gives the possibility to easily expand the website in the future. \\ 
+  # Start process supervisor tree to check if we get new requests
+  def start_link(_args) do
+    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  def init(_init_arg) do
+    # Load contract and initialize it
+
+    contract_abi = ExW3.Abi.load_abi("assets/js/Derp-abi.json")
+    ExW3.Contract.start_link()
+    ExW3.Contract.register(:Derp, abi: contract_abi)
+    ExW3.Contract.at(:Derp, Application.fetch_env!(:derp, :contract_address))
+
+    children = [
+      __MODULE__.ReviewTokenRequest,
+      __MODULE__.AllReviewTokenRequest
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  # ...
+    \end{minted}
+	\label{code:oracle-init}
+	\caption{Initialization code for the supervisor tree of the oracle. It starts two processes (``tasks'') that asynchronously check for incoming review request events emitted from a reviewer.}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{minted}{elixir}
+defmodule Derp.Oracle.EventHandler do
+  # ...
+
+  defmodule AllReviewTokenRequest do
+    use Task, restart: :permanent
+
+    def start_link(_arg) do
+      {:ok, filter_id} = ExW3.Contract.filter(:Derp, "AllReviewTokensRequested")
+
+      state = [
+        filter_id: filter_id
+      ]
+
+      Task.start_link(__MODULE__, :run, [state])
+    end
+
+    def run(state) do
+      filter_id = state[:filter_id]
+      {:ok, changes} = ExW3.Contract.get_filter_changes(filter_id)
+      handle_changes(changes)
+      :timer.sleep(1000)
+      run(state)
+    end
+
+    # ...
+
+    def handle_changes(changes) do
+      Enum.each(changes, fn c ->
+        address =
+          ExW3.Address.from_bytes(c["data"]["account"])
+          |> ExW3.Address.to_hex()
+
+        Derp.Oracle.refresh_reviews_for_user(address, [])
+      end)
+    end
+  end
+    \end{minted}
+	\label{code:all-review-token-request}
+	\caption{Task that checks for review token requests for products which are not known. In this case the backend asks the external shops for the transaction history of the user and compares it to the state on-chain, to know if there are new products and accordingly reward the user the review tokens.}
+\end{figure}
+
+\begin{figure}[h]
+	\begin{minted}{elixir}
+defmodule Derp.Oracle do
+  # ...
+
+  def create_review_request(attrs \\ %{}) do
+    changeset =
+      %ReviewRequest{}
+      |> ReviewRequest.create_changeset(attrs)
+
+    address = changeset.changes.address
+    products = changeset.changes.products || []
+
+    if should_user_pay_request?(ReviewRequest, address) do
+      {:error, :review_token_already_requested}
+    else
+      case refresh_reviews_for_user(address, products) do
+        {:ok, true} ->
+          Repo.insert_or_update(changeset)
+          {:ok, true}
+
+        error ->
+          error
+      end
+    end
+  end
+  
+  # ...
+    \end{minted}
+	\label{code:create-review-request}
+	\caption{Code that checks for new products, reward the user their review tokens and register it on the database if they didn't do a daily review request beforehand.}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{minted}{elixir}
+  def should_user_pay_request?(table, address) do
+    now = DateTime.utc_now()
+    day_start = %DateTime{now | hour: 0, minute: 0, second: 0}
+    day_end = %DateTime{now | hour: 23, minute: 59, second: 59}
+
+    query =
+      from r in table,
+        select: r.address,
+        where:
+          r.address == ^address and
+            r.updated_at >= ^day_start and
+            r.updated_at <= ^day_end
+
+    Repo.exists?(query)
+  end
+    \end{minted}
+	\label{code:request-check}
+	\caption{Code that checks if the user did a review token request.}
+\end{figure}
+
+
+\begin{figure}[H]
+	\begin{minted}{elixir}
+  defp get_bought_products_from_store(address, 0) do
+    Logger.info("Trying to check if #{address} bought new products...")
+
+    store_url = "localhost:8080/check"
+    headers = [{"Content-Type", "application/json"}]
+
+    with {:ok, json} <- Jason.encode(%{address: address})
+         {:ok, response} <- HTTPoison.post(store_url, json, headers),
+         {:ok, %{"data" => result}} <- Jason.decode(response.body) do
+      result
+    else
+      error -> error
+    end 
+  end
+
+  def check_new_bought_products(address) do
+    products =
+      get_bought_products_from_store(address, 0)
+      |> Enum.map(fn p -> 
+        (0 <<< 32) ||| p
+      end)
+
+    {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
+
+    {:ok, claimedProducts} = ExW3.Contract.call(:Derp, :getClaimedProductsFromAccount, [int_address])
+
+    products -- claimedProducts
+  end
+
+  # Request all tokens for all products
+  def refresh_reviews_for_user(address, []) do
+    Logger.info("Refreshing tokens for #{address}...")
+    case check_new_bought_products(address) do
+      [] -> {:error, :no_new_products}
+      products when is_list(products) ->
+        Derp.Oracle.reward_review_tokens(address, products)
+      _error -> {:error, :no_new_products}
+    end
+  end
+    \end{minted}
+	\label{code:new-products-check}
+	\caption{Functions that check if the user bought new products that we don't know about. By default we check just our store (ID 0). If there are new products, we grant review tokens to the user.}
+\end{figure}
+
+\begin{figure}[H]
+	\begin{minted}{elixir}
+
+  def decode_product_id(product) do
+    store_id = (product &&& 0xFFFFFFFF <<< 32) >>> 32
+    product_id = product &&& 0xFFFFFFFF
+
+    {store_id, product_id}
+  end
+
+  def reward_review_tokens(address, product) do
+    options = %{
+      from: Enum.at(ExW3.accounts(), 0),
+      gas: 1_000_000
+    }
+
+    {:ok, int_address} = ExW3.Utils.hex_to_integer(address)
+
+    {store_id, local_product_id} = Derp.Oracle.decode_product_id(product)
+
+    case ExW3.Contract.send(:Derp, :rewardReviewToken, [int_address, product], options) do
+      {:ok, result} ->
+        Logger.info(
+          "Rewarded user #{address} for product #{product} (#{store_id}, #{local_product_id})"
+        )
+
+        {:ok, result}
+    end
+  end
+    \end{minted}
+	\label{code:review-token-reward}
+	\caption{Code that actually rewards the user with review tokens for purchasing one or more products. The server pays for this transaction.}
+\end{figure}
+
+\paragraph{Why use a backend at all?} A case could be made that the backend is not really needed, as we could just use the smart contract to store all the data. However we do not need to verify the authenticity of all of the information used in the website (we mentioned user settings or preferences), and storing it on the chain would increase the price of the contract without any real benefit.
+The backend also serves as a way to absorb part of the cost for the users that want to use the platform; for example it pays the transaction for registering the products and rewarding review tokens so that the user just pays for making reviews, upvoting other reviews, buying profile NFTs and requesting review tokens.
+Additionally, having a solid (pun intended) backend is a good choice for future development, as it gives the possibility to easily expand the website in the future.
 
 \subsection{Frontend}
 
- The fronted for D.E.R.P. uses the Phoenix framework to render each webpage. To provide a better interaction, we also used Alpine.js  to handle events or refreshes and to fill data that was fetched from the contract or IPFS. We interacted with the smart contract through web3.js whenever a user had to make a transaction. For what regards the UI, we created a really basic design using Bootstrap 5.  \\
+The frontend for D.E.R.P. uses the Phoenix framework to render each webpage. To provide a better interaction, we also used Alpine.js  to handle events or refreshes and to fill data that was fetched from the contract or IPFS. We interacted with the smart contract through web3.js whenever a user had to make a transaction. For what regards the UI, we created a really basic design using Bootstrap 5.
+
+\begin{figure}[H]
+	\begin{minted}{javascript}
+document.addEventListener('alpine:init', () => {
+    Alpine.data('reviewData', () => ({
+        reviews: [ ],
+
+        // ...
+
+        async refresh() {
+          const reviewHashes = await contract.methods.getReviews().call();
+
+          this.reviews.length = 0;
+          for (i = 0; i < reviewHashes.length; i++) {
+
+            const asciiAddress = web3.utils.hexToAscii(reviewHashes[i])
+            const stream = await ipfs.cat(asciiAddress);
+
+            const decoder = new TextDecoder()
+            let data = ''
+
+            for await (const chunk of stream) {
+              // chunks of data are returned as a Uint8Array, convert it back to a string
+              data += decoder.decode(chunk, { stream: true })
+            }
+
+            const json_data = JSON.parse(data);
+
+            this.reviews.push({
+              product_id: json_data.productNumber,
+              title: json_data.reviewTitle,
+              body: json_data.reviewBody,
+              upvotes: 1,
+            });
+          }
+        },
+    \end{minted}
+	\label{code:js-alpine}
+	\caption{Example of using Alpine with Web3.js and IPFS. This automatically updates the DOM when the \texttt{reviews} variable is modified.}
+\end{figure}
 
 \subsection{Smart contract}
 
-The smart contract for D.E.R.P. is written in Solidity and it is deployed on Truffle Suite. The main responsibilities of the contract are meant to fullfil most of the functional requirements, namely:
-\begin{itemize} 
-	\item store the reviews on-chain, grant authenticity;
-	\item store the products and some information about them;
-	\item store information about profile items and their prices;
-	\item handle users' interaction with products (e.g. verify that a user has bought a product or claimed their review tokens);
-	\item handle the interactions regarding review tokens and profile tokens.
+The smart contract for D.E.R.P. is written in Solidity and it is deployed on Truffle Suite. The main responsibilities of the contract are meant to fullfil most of the functional and non-functional requirements, namely:
+\begin{itemize}
+	\item store the reviews on-chain, grant authenticity \nreqref{nreq:security};
+	\item store the products and some information about them \reqref{req:browse-products};
+	\item store information about profile items and their prices \reqref{req:buy-items};
+	\item handle users' interaction with products (e.g. verify that a user has bought a product or claimed their review tokens) \reqref{req:interact};
+	\item handle the interactions regarding review tokens and profile tokens \reqref{req:interact}.
 \end{itemize}
 
-Here is a full copy of all of the contract's functions.
-
-\inputminted{Solidity}{Derp.sol}
-
 To complete the interaction with the smart contract we also used IPFS. In fact, storing the reviews on-chain would be too expensive, so we decided to store them on IPFS and just store the hash. This way, we can verify the authenticity of the review and we can also retrieve the review text easily. We did a similar thing for the profile items too, in order to store less information on chain. \\
+
+\input{sc-code}
+
+% \inputminted{Solidity}{Derp.sol}
+
+
+\subsection{Sequence diagrams}
+
+Here it follows the sequence diagram for the most complex interaction in D.E.R.P.: the diagram shows the code execution when an user requests review tokens from the Web UI and they haven't spent their free daily refresh.
+
+In case the user has spent their daily refresh, an identical interaction takes place except that the user now pays for by calling the \texttt{requestAllReviewTokens} function in the smart contract. At that point the Oracle (\texttt{AllReviewTokenRequest} task in \texttt{EventHandler}) intercepts the event, calls \texttt{refresh\_review\_for\_user} and such sub-call is the same.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\linewidth]{figures/sd_review_token_request.pdf}
+	\label{fig:sd-review-token-request}
+	\caption{Sequence Diagram for the review token request.}
+\end{figure}
+
+\newpage
+
+\subsection{Tokens lifecycle}
+
+These are the lifecycle (activity) diagrams for the review and profile tokens.
+It's possible to see that a user can actually choose how to spend their review tokens:
+they can either make a review and/or upvote existing reviews from other users.
+We don't stop the user from spending all their review tokens without making a review, however doing so will penalize them as this will decrease their possibility of receiving upvotes, thus profile tokens.
+
+\begin{figure}[H]
+	\centering
+	\begin{minipage}{0.49\linewidth}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figures/act-review-token-lc.pdf}
+		\label{fig:act-review-token-lifecycle}
+	\end{minipage}%
+	\begin{minipage}{0.49\linewidth}
+		\centering
+		\includegraphics[width=0.75\linewidth]{figures/act-profile-token-lc.pdf}
+		\label{fig:act-review-token-lifecycle}
+	\end{minipage}
+	\caption{The activity diagrams for the lifecycle of the review tokens (left) and the profile tokens (right).}
+\end{figure}
+
+To make the platform more engaging for the users, we decided to reward users 1 profile token for each upvote they receive on a review, while making upvotes cost 2 review tokens. Upon purchasing a product a user will receive 10 review tokens that equate to the ability to make a review for that product (using 2 review tokens) and upvoting 4 existing ones (using 2 review tokens for each).
 
 \section{Images} %TO MOVE
 
