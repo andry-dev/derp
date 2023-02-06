@@ -115,6 +115,41 @@ The goal of D.E.R.P. is to address all of these challenges while building a plat
 \section{Background}
 % Blockchain: history, rationale, concepts...
 
+The idea of blockchain was first suggested in 1991 by Stuart Haber and W. Scott Stornetta, who described a system that would allow users to timestamp a document and store it in a distributed way [MT] Modern blockchains have gone a long way from this initial concept, and they are now used in a wide range of applications, from cryptocurrencies to supply chain management. A blockchain is in fact a \textbf{protocol} by definition and this means that there is no standard implementation but rather a multitude of them.
+During the recent years, the Bitcoin and Ethereum ones rose in popularity among the general public and are now widely adopted and used. As such, they can be used to present the main concepts of a blockchain and how they are implemented in practice. \\
+
+\paragraph{Blockchain} A blockhain, as the name suggests, is a collection of \textbf{blocks} that are \textbf{linked together in a chain}. This link is achieved, for instance, by including the \textbf{hash} of the previous block inside the next one. The inside of each block contains \textbf{transactions} between \textbf{addresses} on the chain plus some extra information, such as the \textbf{timestamp} of the block. A blockchain is generally \textbf{immutable} and can be of four different types, as shown in the following diagram: 
+\begin{figure}
+  \centering
+  \includegraphics[width=0.8\textwidth]{figures/bt_types.png}
+  \caption{Types of blockchains - from lecture slides by Prof. Di Ciccio}
+  \label{fig:blockchain_types}
+\end{figure}
+Most blockchains are public and permissionless, and as such all the nodes have the ability to see the full history of the transactions.
+
+
+\paragraph{Nodes} Nodes are a building block of every decentralized protocol. Depending on the nature of the blockchain, we can identify two nomenclatures for them:
+\begin{itemize}
+  \item PoW: \textbf{miners} - each node has the goal to compute the PoW for the next block and add it to the chain;
+  \item PoS: \textbf{validators} - each node has the goal to validate the next block and add it to the chain.
+\end{itemize}
+Nodes can also cover other roles, for example veryfing the headers for the next blocks, thus speeding up the network, or only run ... \\
+
+\paragraph{Proofs} In order for a block to be added to a blockchain, its \textbf{proposer} has to have some kind of \textbf{proof} for the inclusion. This proof can either be \textbf{expensive to compute}, like in the \textbf{Proof of Work} mechanism of Bitcoin, or \textbf{require the user to put something at stake}, as in the \textbf{Proof of Stake} of Ethereum. The trend this days is going towards the utilisation of \textbf{PoS} blockchains, as they tend to be less expensive and more scalable. It must be noted that there are other mechanism for proving the \textbf{validity} of a block, like \textbf{Proof of Time, Proof of Randomness} and so on. \\
+
+\paragraph{pseudonimity} Contrary to popular belief, most blockchains don't grant full anonimity. In fact, it is more common for users to be \textbf{pseudonimous}. The only information that is shared is their \textbf{public key} so their identity is not known, but the transactions that they perform are. This key feature allows for \textbf{anonymity} and \textbf{transparency} at the same time. Note that some blockchains - like Monero's - do actually grant anonimity. In the case of Bitcoin, instead, a user that inadvertedly leaks their public key would de-anonimize themselves.\\
+
+\paragraph{Smart contracts and Gas} Some blockchain implementations, like Ethereum, offer a \textbf{Turing complete language} which can be used to \textbf{write pieces of code that run on the blockchain itself}. These pieces of code are called \textbf{smart contracts} and they can be used to implement a wide range of applications, as they also posses \textbf{their own storage}. Their key characteristic is that they are \textbf{immutable}: once created, there is no way to change them. On top of that, after calling a function there is no guarantee that the code is eventually reaching a halt! For this reason, there exist control mechanisms such as \textbf{gas}. Gas is exchanged for \textbf{Weis} at a price decided by the user when making  transactions and will be used to fuel the code execution, eventually leading to a stop when it finishes. In order to keep the price of gas stable and the Ethereum network functioning, additional measures, such as part of the gas being burnt in every transaction, are put in place. \\
+
+\paragraph{NFTs} Smart contracts allow for the creation of tokens, i.e. internal assets which can be bought, sold and exchanged between users. These tokens can be:
+\begin{itemize}
+  \item \textbf{fungible}: they are all the same and can be exchanged at a 1:1 ratio;
+  \item \textbf{non-fungible}: they are different and can't be exchanged at a 1:1 ratio;
+  \item \textbf{semi-fungible}: they could be fungible until redeemed or expired.
+\end{itemize}
+During the last years, NFTs became particularly popular, as they can be used to represent digital assets such as artworks, music, videos and so on. The most famous example is probably the \textbf{CryptoPunks} collection, which is a set of 10,000 unique images.\\
+
+
 \subsection{E-commerce}
 % Application domain
 
@@ -599,8 +634,14 @@ To make the platform more engaging for the users, we decided to reward users 1 p
 
 \section{Known issues}
 
-% We can't prevent over the counter scams
-% Stores are forced to use our API (can prevent adoption)
+Our application has a number of known issues that stem from the very nature of the project. We will list them and try to provide a possible solution for each one:
+
+\begin{itemize}
+  \item {\bf{Oracle}}: the oracle is a single point of failure. If the oracle goes down, the application will not be able to function properly. We could solve this issue by using a distributed oracle, such as Chainlink. This would allow us to have multiple oracles that would be able to provide the same service, thus making the application more resilient to failures. 
+  \item {\bf{OTC scams}}: the nature of the app makes it really expensive to make OTC scams, e.g. vendors making deals with customers outside the platform, but doesn't stop them completely. One way to fix this would be to rely on an e-commerce platform that implements a mechanism in which the customer cannot know the identity of the seller (while still being able to buy the product). This would make it impossible for the vendor to make deals with the customer outside the platform.
+  \item {\bf{Review Bombing}}: the nature of the app makes it really hard to make review bombing attacks, e.g. a vendor making a lot of accounts and upvoting their own reviews. However, it doesn't stop them completely. 
+  \item {\bf{API}}: e-commerces that want to use the platform are forced to implement an API which is compatible with our oracle. Furthermore, the API exposes some of the customers data to the public. This could be solved by using an e-commerce that implements similar protocols to our application - i.e. relies on the blockchain. Note that the current implementation would already work with blockchain based e-commerce.
+\end{itemize}
 
 \section{Conclusion}
 
