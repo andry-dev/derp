@@ -43,7 +43,7 @@ const transactions = [
     date: new Date("2023-01-12T00:15:30.000Z"),
   },
   {
-    address: 0xbcd0bb18140a21ada3c9d7dd494c173e53a3640fn,
+    address: 0x8FDaF496929f1d659a52289d2B4Fb484aaD0b08D,
     product_id: 2,
   },
   {
@@ -51,7 +51,7 @@ const transactions = [
     product_id: 5,
   },
   {
-    address: 0x3a1f0b9d86006d003887e86ecb9ca35d1ae42fcdn,
+    address: 0x8FDaF496929f1d659a52289d2B4Fb484aaD0b08D,
     product_id: 3,
   },
   {
