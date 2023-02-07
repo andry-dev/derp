@@ -14,16 +14,15 @@ After cloning the repository, open 3 terminal windows:
 - the second in `derp/derp`, and run 
     - `mix ecto.migrate`
     - `mix deps.get`
-    - `mix phx.server`
 - the third one in `derp/smart_contract` and run `./run-truffle.sh`
 
 In order to make IPFS work, you will need to access the webui on `localhost:5001/webui` anb past the Gateway HTTPHeaders section into the API, like so:
 
 ![](api_ipfs.png)
 
-You'll then have to run `migrate` into the truffle prompt and `deno run --allow-net add_tokens.ts` in the main root. You should also run `mix derp.update` in `/derp` in order to update the smart contract address into the application created by phoenix. Finally, you can access the webpage on `localhost:4000`.
+You'll then have to run the command `migrate` into the truffle prompt and `deno run --allow-net add_tokens.ts` in the main root. You should also run `mix derp.update` in `/derp` in order to update the smart contract address into the application created by phoenix. Finally, you can access the webpage on `localhost:4000` after running `mix phx.server`.
 
-To connect to truffle, copy the reviewer private key in the third shell and insert it in metamask, after adding the truffle network at `localhost:9454`.
+To connect to truffle, copy the reviewer private key in the third shell and insert it in metamask, after adding the truffle network at `localhost:9454`. This reviewer already has some tokens/reviews associated to them for ease of use, but feel free to use new accounts!
 
 ![](keys.png)
 
