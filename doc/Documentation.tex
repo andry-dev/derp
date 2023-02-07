@@ -115,14 +115,14 @@ The goal of D.E.R.P. is to address all of these challenges while building a plat
 \section{Background}
 % Blockchain: history, rationale, concepts...
 
-The idea of blockchain was first suggested in 1991 by Stuart Haber and W. Scott Stornetta, who described a system that would allow users to timestamp a document and store it in a distributed way [MT] Modern blockchains have gone a long way from this initial concept, and they are now used in a wide range of applications, from cryptocurrencies to supply chain management. A blockchain is in fact a \textbf{protocol} by definition and this means that there is no standard implementation but rather a multitude of them.
+The idea of blockchain was first suggested in 1991 by Stuart Haber and W. Scott Stornetta, who described a system that would allow users to timestamp a document and store it in a distributed way [INSERT QUOTE HERE]. Modern blockchains have gone a long way from this initial concept, and they are now used in a wide range of applications, from cryptocurrencies to supply chain management. A blockchain is in fact a \textbf{protocol} by definition and this means that there is no standard implementation but rather a multitude of them.
 During the recent years, the Bitcoin and Ethereum ones rose in popularity among the general public and are now widely adopted and used. As such, they can be used to present the main concepts of a blockchain and how they are implemented in practice.
 
 \paragraph{Blockchain} A blockchain, as the name suggests, is a collection of \textbf{blocks} that are \textbf{linked together in a chain}. This link is achieved, for instance, by including the \textbf{hash} of the previous block inside the next one. The inside of each block contains \textbf{transactions} between \textbf{addresses} on the chain plus some extra information, such as the \textbf{timestamp} of the block. A blockchain is generally \textbf{immutable} and can be of four different types, as shown in the following diagram:
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=0.8\textwidth]{figures/bt_types.png}
-	\caption{Types of blockchains - from lecture slides by Prof. Di Ciccio}
+	\caption{Types of blockchains - from lecture slides by Prof. Di Ciccio [INSERT QUOTE HERE]}
 	\label{fig:blockchain_types}
 \end{figure}
 Most blockchains are public and permissionless, and as such all the nodes have the ability to see the full history of the transactions.
@@ -646,6 +646,9 @@ Our application has a number of known issues that stem from the very nature of t
 \end{itemize}
 
 \section{Conclusion}
+
+We presented D.E.R.P., an Ethereum/Solidity based application that aims to provide a decentralized review platform for e-commerce. The application is composed of a smart contract, a Web UI and an Oracle. The smart contract is responsible for storing the reviews and the products, while the Web UI is used to interact with the smart contract. The Oracle is used to interact with the e-commerce platform and to update the smart contract accordingly. We also wrote a list of possible use cases and described the implementation details. Finally, we discuss know issues and potential improvements. In particular, it would be interesting to expand the project in order to make it work with existing e-commerce platforms that are based on the Ethereum blockchain in order to fix existing limitations.
+All in all, we are happy and satisfied with the result of the project. 
 
 \newpage
 %\printbibliography
