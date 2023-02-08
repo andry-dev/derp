@@ -111,6 +111,9 @@ async function serveBoughtProducts(requestEvent: Deno.RequestEvent) {
   requestEvent.respondWith(
     Response.json(body, {
       status: 200,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": "*",
+      }),
     }),
   );
 }
@@ -138,6 +141,9 @@ async function checkBoughtProduct(
   return requestEvent.respondWith(
     Response.json(body, {
       status: 200,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": "*",
+      }),
     }),
   );
 }
@@ -158,6 +164,9 @@ async function getAllBoughtProducts(
   return requestEvent.respondWith(
     Response.json(body, {
       status: 200,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": "*",
+      }),
     }),
   );
 }
@@ -187,6 +196,9 @@ function getProductInfo(
   return requestEvent.respondWith(
     Response.json(body, {
       status: 200,
+      headers: new Headers({
+        "Access-Control-Allow-Origin": "*",
+      }),
     }),
   );
 }
